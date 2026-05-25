@@ -1,5 +1,6 @@
 from keycloak_agent.api.api_client_base import ApiClientBase
 
+
 class Api(ApiClientBase):
     def list_clients(self, realm: str) -> list:
         """List clients in a realm."""

@@ -1,21 +1,18 @@
-import warnings
-import logging
+"""CONCEPT:KEY-002 Main FastMCP server and tool registration."""
 import os
 import sys
 from typing import Any
-from fastmcp import Context, FastMCP
-from fastmcp.utilities.logging import get_logger
-from pydantic import Field
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import create_mcp_server
 from dotenv import find_dotenv, load_dotenv
+from fastmcp.utilities.logging import get_logger
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
+from keycloak_agent.mcp.mcp_clients import register_clients_tools
 from keycloak_agent.mcp.mcp_realms import register_realms_tools
 from keycloak_agent.mcp.mcp_users import register_users_tools
-from keycloak_agent.mcp.mcp_clients import register_clients_tools
 
 __version__ = "0.15.0"
 logger = get_logger(name="keycloak_agent")
@@ -32,15 +29,14 @@ def get_mcp_instance() -> tuple[Any, ...]:
     async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
-    
     DEFAULT_REALMSTOOL = to_boolean(os.getenv("REALMSTOOL", "True"))
     if DEFAULT_REALMSTOOL:
         register_realms_tools(mcp)
-    
+
     DEFAULT_USERSTOOL = to_boolean(os.getenv("USERSTOOL", "True"))
     if DEFAULT_USERSTOOL:
         register_users_tools(mcp)
-    
+
     DEFAULT_CLIENTSTOOL = to_boolean(os.getenv("CLIENTSTOOL", "True"))
     if DEFAULT_CLIENTSTOOL:
         register_clients_tools(mcp)
