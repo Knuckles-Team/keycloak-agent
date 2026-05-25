@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "keycloak_agent": {
+      "command": "python",
+      "args": [
+        "-m",
+        "keycloak_agent.mcp_server"
+      ],
+      "env": {}
+    }
+  }
+}
