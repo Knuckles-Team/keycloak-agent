@@ -8,14 +8,12 @@ from keycloak_agent.auth import get_client
 
 
 def register_users_tools(mcp: FastMCP):
-    """Register Keycloak Agent users tools.
-    CONCEPT:KEY-001
-    """
+    """Register Keycloak Agent users tools."""
 
-    @mcp.tool(tags={"users"})
+    @mcp.tool(tags=["users"])
     async def keycloak_agent_users(
         action: str = Field(
-            description="Action to perform. Must be one of: 'list_users', 'get_user', 'create_user', 'delete_user', 'reset_password'"
+            description="Action to perform. e.g. 'list_users', 'get_user', 'create_user', 'delete_user', 'reset_password', 'list_users_by_user_id_groups', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
@@ -23,9 +21,9 @@ def register_users_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """Manage Keycloak Agent users operations."""
+        """Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings)."""
         if ctx:
-            await ctx.info("Executing users operations...")
+            await ctx.info(f"Executing users operation: {action}...")
         import json
 
         try:
@@ -35,15 +33,16 @@ def register_users_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        if action == "list_users":
-            return client.list_users(**kwargs)
-        if action == "get_user":
-            return client.get_user(**kwargs)
-        if action == "create_user":
-            return client.create_user(**kwargs)
-        if action == "delete_user":
-            return client.delete_user(**kwargs)
-        if action == "reset_password":
-            return client.reset_password(**kwargs)
+        # Dynamic dispatch
+        method = getattr(client, action, None)
+        if not method:
+            alt_action = action.replace("-", "_").replace(" ", "_").lower()
+            method = getattr(client, alt_action, None)
 
-        raise ValueError(f"Unknown action: {action}")
+        if not method:
+            return {"error": f"Unknown action '{action}' on Users client."}
+
+        try:
+            return method(**kwargs)
+        except Exception as e:
+            return {"error": f"Failed to execute users operation {action}: {e}"}

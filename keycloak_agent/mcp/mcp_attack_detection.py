@@ -1,4 +1,4 @@
-"""MCP tools for realms operations."""
+"""MCP tools for attack detection operations."""
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
@@ -7,13 +7,13 @@ from pydantic import Field
 from keycloak_agent.auth import get_client
 
 
-def register_realms_tools(mcp: FastMCP):
-    """Register Keycloak Agent realms tools."""
+def register_attack_detection_tools(mcp: FastMCP):
+    """Register Keycloak Agent attack detection tools."""
 
-    @mcp.tool(tags=["realms"])
-    async def keycloak_agent_realms(
+    @mcp.tool(tags=["attack_detection"])
+    async def keycloak_agent_attack_detection(
         action: str = Field(
-            description="Action to perform. e.g. 'list_realms', 'get_realm', 'create_realm', 'delete_realm', etc."
+            description="Action to perform. e.g. 'get_attack_detection_brute_force_users_by_userId', 'delete_attack_detection_brute_force_users', 'delete_attack_detection_brute_force_users_by_userId', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
@@ -21,9 +21,9 @@ def register_realms_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """Manage Keycloak Agent realms operations."""
+        """Manage Keycloak Agent brute force and attack detection operations."""
         if ctx:
-            await ctx.info(f"Executing realms operation: {action}...")
+            await ctx.info(f"Executing attack detection operation: {action}...")
         import json
 
         try:
@@ -40,9 +40,11 @@ def register_realms_tools(mcp: FastMCP):
             method = getattr(client, alt_action, None)
 
         if not method:
-            return {"error": f"Unknown action '{action}' on Realms client."}
+            return {"error": f"Unknown action '{action}' on Attack Detection client."}
 
         try:
             return method(**kwargs)
         except Exception as e:
-            return {"error": f"Failed to execute realms operation {action}: {e}"}
+            return {
+                "error": f"Failed to execute attack detection operation {action}: {e}"
+            }

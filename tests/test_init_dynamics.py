@@ -1,4 +1,6 @@
 import pytest
+
+
 @pytest.mark.concept("KEY-001")
 def test_init_dynamics():
     import keycloak_agent

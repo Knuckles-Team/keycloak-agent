@@ -8,14 +8,12 @@ from keycloak_agent.auth import get_client
 
 
 def register_clients_tools(mcp: FastMCP):
-    """Register Keycloak Agent clients tools.
-    CONCEPT:KEY-001
-    """
+    """Register Keycloak Agent clients tools."""
 
-    @mcp.tool(tags={"clients"})
+    @mcp.tool(tags=["clients"])
     async def keycloak_agent_clients(
         action: str = Field(
-            description="Action to perform. Must be one of: 'list_clients', 'get_client', 'create_client', 'delete_client'"
+            description="Action to perform. e.g. 'list_clients', 'get_client', 'create_client', 'delete_client', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
@@ -25,7 +23,7 @@ def register_clients_tools(mcp: FastMCP):
     ) -> dict:
         """Manage Keycloak Agent clients operations."""
         if ctx:
-            await ctx.info("Executing clients operations...")
+            await ctx.info(f"Executing clients operation: {action}...")
         import json
 
         try:
@@ -35,13 +33,16 @@ def register_clients_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-        if action == "list_clients":
-            return client.list_clients(**kwargs)
-        if action == "get_client":
-            return client.get_client(**kwargs)
-        if action == "create_client":
-            return client.create_client(**kwargs)
-        if action == "delete_client":
-            return client.delete_client(**kwargs)
+        # Dynamic dispatch
+        method = getattr(client, action, None)
+        if not method:
+            alt_action = action.replace("-", "_").replace(" ", "_").lower()
+            method = getattr(client, alt_action, None)
 
-        raise ValueError(f"Unknown action: {action}")
+        if not method:
+            return {"error": f"Unknown action '{action}' on Clients client."}
+
+        try:
+            return method(**kwargs)
+        except Exception as e:
+            return {"error": f"Failed to execute clients operation {action}: {e}"}

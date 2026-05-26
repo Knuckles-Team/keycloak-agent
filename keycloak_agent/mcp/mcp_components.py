@@ -1,4 +1,4 @@
-"""MCP tools for realms operations."""
+"""MCP tools for component operations."""
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
@@ -7,13 +7,13 @@ from pydantic import Field
 from keycloak_agent.auth import get_client
 
 
-def register_realms_tools(mcp: FastMCP):
-    """Register Keycloak Agent realms tools."""
+def register_components_tools(mcp: FastMCP):
+    """Register Keycloak Agent components tools."""
 
-    @mcp.tool(tags=["realms"])
-    async def keycloak_agent_realms(
+    @mcp.tool(tags=["components"])
+    async def keycloak_agent_components(
         action: str = Field(
-            description="Action to perform. e.g. 'list_realms', 'get_realm', 'create_realm', 'delete_realm', etc."
+            description="Action to perform. e.g. 'list_components', 'get_component', 'create_component', 'delete_component', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
@@ -21,9 +21,9 @@ def register_realms_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """Manage Keycloak Agent realms operations."""
+        """Manage Keycloak Agent components operations."""
         if ctx:
-            await ctx.info(f"Executing realms operation: {action}...")
+            await ctx.info(f"Executing components operation: {action}...")
         import json
 
         try:
@@ -40,9 +40,9 @@ def register_realms_tools(mcp: FastMCP):
             method = getattr(client, alt_action, None)
 
         if not method:
-            return {"error": f"Unknown action '{action}' on Realms client."}
+            return {"error": f"Unknown action '{action}' on Components client."}
 
         try:
             return method(**kwargs)
         except Exception as e:
-            return {"error": f"Failed to execute realms operation {action}: {e}"}
+            return {"error": f"Failed to execute components operation {action}: {e}"}

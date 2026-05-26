@@ -1,4 +1,4 @@
-"""MCP tools for realms operations."""
+"""MCP tools for organizations operations."""
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
@@ -7,13 +7,13 @@ from pydantic import Field
 from keycloak_agent.auth import get_client
 
 
-def register_realms_tools(mcp: FastMCP):
-    """Register Keycloak Agent realms tools."""
+def register_organizations_tools(mcp: FastMCP):
+    """Register Keycloak Agent organizations tools."""
 
-    @mcp.tool(tags=["realms"])
-    async def keycloak_agent_realms(
+    @mcp.tool(tags=["organizations"])
+    async def keycloak_agent_organizations(
         action: str = Field(
-            description="Action to perform. e.g. 'list_realms', 'get_realm', 'create_realm', 'delete_realm', etc."
+            description="Action to perform. e.g. 'list_organizations', 'get_organization_by_id', 'create_organization', 'delete_organization_by_id', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
@@ -21,9 +21,9 @@ def register_realms_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """Manage Keycloak Agent realms operations."""
+        """Manage Keycloak Agent organizations operations."""
         if ctx:
-            await ctx.info(f"Executing realms operation: {action}...")
+            await ctx.info(f"Executing organizations operation: {action}...")
         import json
 
         try:
@@ -40,9 +40,9 @@ def register_realms_tools(mcp: FastMCP):
             method = getattr(client, alt_action, None)
 
         if not method:
-            return {"error": f"Unknown action '{action}' on Realms client."}
+            return {"error": f"Unknown action '{action}' on Organizations client."}
 
         try:
             return method(**kwargs)
         except Exception as e:
-            return {"error": f"Failed to execute realms operation {action}: {e}"}
+            return {"error": f"Failed to execute organizations operation {action}: {e}"}
