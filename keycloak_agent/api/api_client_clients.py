@@ -10,7 +10,13 @@ class Api(ApiClientBase):
         """Get client details."""
         return self.request("GET", f"/admin/realms/{realm}/clients/{client_uuid}")
 
-    def create_client(self, realm: str, client_id: str | None = None, secret: str | None = None, client_representation: dict | None = None) -> dict:
+    def create_client(
+        self,
+        realm: str,
+        client_id: str | None = None,
+        secret: str | None = None,
+        client_representation: dict | None = None,
+    ) -> dict:
         """Create a client."""
         if client_representation:
             data = dict(client_representation)
@@ -26,11 +32,15 @@ class Api(ApiClientBase):
 
     def get_client_secret(self, realm: str, client_uuid: str) -> dict:
         """Get the client secret for a client UUID."""
-        return self.request("GET", f"/admin/realms/{realm}/clients/{client_uuid}/client-secret")
+        return self.request(
+            "GET", f"/admin/realms/{realm}/clients/{client_uuid}/client-secret"
+        )
 
     def find_client_by_client_id(self, realm: str, client_id: str) -> dict | None:
         """Find a client by its clientId and return it, or None if not found."""
-        clients = self.request("GET", f"/admin/realms/{realm}/clients", params={"clientId": client_id})
+        clients = self.request(
+            "GET", f"/admin/realms/{realm}/clients", params={"clientId": client_id}
+        )
         if isinstance(clients, list) and len(clients) > 0:
             return clients[0]
         return None

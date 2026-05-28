@@ -226,8 +226,8 @@ class ApiClientBase:
 
         headers = {"Content-Type": "application/json"}
 
-        json_data = data if isinstance(data, (dict, list)) else None
-        req_data = data if not isinstance(data, (dict, list)) else None
+        json_data = data if isinstance(data, dict | list) else None
+        req_data = data if not isinstance(data, dict | list) else None
 
         response = self._session.request(
             method=method,
