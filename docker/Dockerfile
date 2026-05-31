@@ -29,8 +29,8 @@ WORKDIR /app
 COPY . /app
 
 # Compile and install package in-place
-RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow -e .[mcp]
+RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow keycloak-agent[mcp]>=0.21.0
 
 COPY docker/starship.toml /root/.config/starship.toml
 
-CMD ["python", "-m", "keycloak_agent.mcp_server"]
+CMD ["keycloak-mcp"]
