@@ -9,8 +9,8 @@ import urllib3
 
 
 class ApiClientBase:
-    _schema = None
-    _methods = {}
+    _schema: dict[str, Any] | None = None
+    _methods: dict[str, Any] = {}
 
     def __init__(
         self,

@@ -2,7 +2,7 @@ from keycloak_agent.api.api_client_base import ApiClientBase
 
 
 class Api(ApiClientBase):
-    def list_users(self, realm: str, search: str = None) -> list:
+    def list_users(self, realm: str, search: str | None = None) -> list:
         """List users in a realm."""
         params = {"search": search} if search else None
         return self.request("GET", f"/admin/realms/{realm}/users", params=params)
@@ -12,7 +12,7 @@ class Api(ApiClientBase):
         return self.request("GET", f"/admin/realms/{realm}/users/{user_id}")
 
     def create_user(
-        self, realm: str, username: str, email: str = None, enabled: bool = True
+        self, realm: str, username: str, email: str | None = None, enabled: bool = True
     ) -> dict:
         """Create a user."""
         return self.request(
