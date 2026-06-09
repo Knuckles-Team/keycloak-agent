@@ -1,10 +1,16 @@
-# Keycloak MCP
+# Keycloak Agent
+## MCP Server | Agent
 
-[![Status](https://img.shields.io/badge/status-active-success)](https://github.com/genius-agents/keycloak-agent)
-[![Version](https://img.shields.io/badge/version-0.15.0-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![PyPI - Version](https://img.shields.io/pypi/v/keycloak-agent)](https://pypi.org/project/keycloak-agent/)
+![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
+[![License](https://img.shields.io/pypi/l/keycloak-agent)](https://github.com/Knuckles-Team/keycloak-agent/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/Knuckles-Team/keycloak-agent)
 
-Keycloak Identity and Access Management orchestrator. Built with the highest architectural standards, incorporating dynamic facades, custom API routing, and FastMCP tool decoration.
+Keycloak Identity and Access Management **MCP Server + Agent** for the agent-utilities ecosystem. Built with the standardized dynamic-facade architecture, custom API routing, and FastMCP tool registration.
+
+> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
+> interfaces, and guidance for provisioning the Keycloak platform are maintained in
+> the [official documentation](https://knuckles-team.github.io/keycloak-agent/).
 
 ## Table of Contents
 - [Overview](#overview)
@@ -172,6 +178,23 @@ pre-commit run --all-files
 ```
 
 ---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/keycloak-agent/) and is
+the recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/keycloak-agent/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/keycloak-agent/deployment/) | run the MCP server and agent, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/keycloak-agent/usage/) | the MCP tools, the `Api` client, the CLI |
+| [Backing Platform](https://knuckles-team.github.io/keycloak-agent/platform/) | deploy Keycloak with Docker |
+| [Overview](https://knuckles-team.github.io/keycloak-agent/overview/) | the dynamic facade and tool surface |
+| [Concepts](https://knuckles-team.github.io/keycloak-agent/concepts/) | concept registry (`CONCEPT:KEY-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
 
 ## License
 
