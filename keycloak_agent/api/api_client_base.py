@@ -19,11 +19,17 @@ class ApiClientBase:
         username: str | None = None,
         password: str | None = None,
         verify: bool = True,
+        token_provider: Any = None,
     ):
         self.base_url = base_url
         self.token = token
         self.username = username
         self.password = password
+        # Optional self-refreshing token source (ClientCredentialsTokenProvider).
+        # When set, every request carries a freshly-minted bearer and a 401
+        # triggers a forced re-mint + one retry — so a rotated/expired admin
+        # token (Keycloak master-realm tokens are short-lived) self-heals.
+        self._token_provider = token_provider
         self._session = requests.Session()
         self._session.verify = verify
 
@@ -224,19 +230,29 @@ class ApiClientBase:
         else:
             url = urljoin(self.base_url, endpoint)
 
-        headers = {"Content-Type": "application/json"}
-
         json_data = data if isinstance(data, dict | list) else None
         req_data = data if not isinstance(data, dict | list) else None
 
-        response = self._session.request(
-            method=method,
-            url=url,
-            headers=headers,
-            params=params,
-            json=json_data,
-            data=req_data,
-        )
+        def _send(force_token: bool) -> requests.Response:
+            headers = {"Content-Type": "application/json"}
+            if self._token_provider is not None:
+                headers["Authorization"] = (
+                    f"Bearer {self._token_provider.get_token(force=force_token)}"
+                )
+            return self._session.request(
+                method=method,
+                url=url,
+                headers=headers,
+                params=params,
+                json=json_data,
+                data=req_data,
+            )
+
+        response = _send(force_token=False)
+        # A 401 means the cached admin token rotated/expired between mint and use
+        # — force a fresh token and retry once before surfacing the error.
+        if response.status_code == 401 and self._token_provider is not None:
+            response = _send(force_token=True)
 
         if response.status_code >= 400:
             raise Exception(f"API error: {response.status_code} - {response.text}")
