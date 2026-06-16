@@ -13,7 +13,7 @@ def register_clients_tools(mcp: FastMCP):
     @mcp.tool(tags=["clients"])
     async def keycloak_agent_clients(
         action: str = Field(
-            description="Action to perform. e.g. 'list_clients', 'get_client', 'create_client', 'delete_client', etc."
+            description="Action to perform. e.g. 'list_clients', 'get_client', 'create_client', 'delete_client', 'get_client_secret', 'regenerate_client_secret' (by client_uuid), 'regenerate_client_secret_by_client_id' (by clientId), etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."

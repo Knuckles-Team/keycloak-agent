@@ -45,6 +45,34 @@ class Api(ApiClientBase):
             return clients[0]
         return None
 
+    def regenerate_client_secret(self, realm: str, client_uuid: str) -> dict:
+        """Regenerate (rotate) a confidential client's secret by client UUID.
+
+        POSTs to the client-secret endpoint, which makes Keycloak generate a new
+        secret and invalidate the old one; returns ``{"type","value"}`` with the
+        new value. Pair with the automated-credential-rotation skill (write the
+        returned value to OpenBao + propagate to consumers — never log it).
+        """
+        return self.request(
+            "POST", f"/admin/realms/{realm}/clients/{client_uuid}/client-secret"
+        )
+
+    def regenerate_client_secret_by_client_id(self, realm: str, client_id: str) -> dict:
+        """Regenerate a client's secret by its human clientId (e.g. 'mcp-multiplexer').
+
+        Resolves clientId -> UUID, then regenerates. Returns the same shape as
+        ``regenerate_client_secret`` plus the resolved ``client_uuid``; raises if
+        the client is not found.
+        """
+        found = self.find_client_by_client_id(realm, client_id)
+        if not found:
+            raise ValueError(f"Client '{client_id}' not found in realm '{realm}'")
+        uuid = found["id"]
+        result = self.regenerate_client_secret(realm, uuid)
+        if isinstance(result, dict):
+            result = {**result, "client_uuid": uuid}
+        return result
+
     def delete_client(self, realm: str, client_uuid: str) -> dict:
         """Delete a client."""
         return self.request("DELETE", f"/admin/realms/{realm}/clients/{client_uuid}")
