@@ -121,14 +121,26 @@ A local template is supplied inside [.env.example](.env.example). Copy this file
 
 ## MCP Tools
 
-The following declarative FastMCP tools are registered and available to upstream AI agents:
+Auto-generated — do not edit between the markers below.
 
-| Tool Name | Description | Parameters |
-|-----------|-------------|------------|
-| `get_users` | List realm users | `limit: int = 100` |
-| `create_user` | Create user in realm | `username: str, email: str, enabled: bool = True` |
-| `get_realms` | List realms | None |
-| `get_clients` | List realm clients | None |
+<!-- MCP-TOOLS-TABLE:START -->
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `keycloak_agent_attack_detection` | `ATTACK_DETECTIONTOOL` | Manage Keycloak Agent brute force and attack detection operations. |
+| `keycloak_agent_authentication` | `AUTHENTICATIONTOOL` | Manage Keycloak Agent authentication and authenticator flow operations. |
+| `keycloak_agent_clients` | `CLIENTSTOOL` | Manage Keycloak Agent clients operations. |
+| `keycloak_agent_components` | `COMPONENTSTOOL` | Manage Keycloak Agent components operations. |
+| `keycloak_agent_groups` | `GROUPSTOOL` | Manage Keycloak Agent groups operations. |
+| `keycloak_agent_idps` | `IDPSTOOL` | Manage Keycloak Agent identity providers operations. |
+| `keycloak_agent_info` | `INFOTOOL` | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
+| `keycloak_agent_organizations` | `ORGANIZATIONSTOOL` | Manage Keycloak Agent organizations operations. |
+| `keycloak_agent_realms` | `REALMSTOOL` | Manage Keycloak Agent realms operations. |
+| `keycloak_agent_roles` | `ROLESTOOL` | Manage Keycloak Agent roles and scope mappings. |
+| `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
+
+_11 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
 
 See [docs/overview.md](docs/overview.md) or [docs/concepts.md](docs/concepts.md) for deeper operational examples.
 
