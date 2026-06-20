@@ -1,8 +1,7 @@
 """CONCEPT:KEY-003 Identity credentials loader and session manager."""
 
-import os
-
-from agent_utilities.base_utilities import get_logger, to_boolean
+from agent_utilities.base_utilities import get_logger
+from agent_utilities.core.config import setting
 from agent_utilities.mcp.client_credentials import ClientCredentialsTokenProvider
 
 from keycloak_agent.api_client import Api
@@ -12,14 +11,14 @@ logger = get_logger(__name__)
 
 def get_client() -> Api:
     """Get authenticated client for keycloak_agent."""
-    base_url = os.getenv("KEYCLOAK_URL") or os.getenv("KEYCLOAK_AGENT_BASE_URL", "")
-    token = os.getenv("KEYCLOAK_TOKEN", "")
-    username = os.getenv("KEYCLOAK_AGENT_USERNAME", "")
-    password = os.getenv("KEYCLOAK_AGENT_PASSWORD", "")
-    verify = to_boolean(os.getenv("KEYCLOAK_AGENT_SSL_VERIFY", "True"))
-    client_id = os.getenv("KEYCLOAK_CLIENT_ID", "")
-    client_secret = os.getenv("KEYCLOAK_CLIENT_SECRET", "")
-    realm = os.getenv("KEYCLOAK_REALM", "master")
+    base_url = setting("KEYCLOAK_URL") or setting("KEYCLOAK_AGENT_BASE_URL", "")
+    token = setting("KEYCLOAK_TOKEN", "")
+    username = setting("KEYCLOAK_AGENT_USERNAME", "")
+    password = setting("KEYCLOAK_AGENT_PASSWORD", "")
+    verify = setting("KEYCLOAK_AGENT_SSL_VERIFY", True)
+    client_id = setting("KEYCLOAK_CLIENT_ID", "")
+    client_secret = setting("KEYCLOAK_CLIENT_SECRET", "")
+    realm = setting("KEYCLOAK_REALM", "master")
 
     if not base_url:
         # Default fallback for testing
