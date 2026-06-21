@@ -28,10 +28,10 @@ keycloak-mcp = "keycloak_agent.mcp_server:mcp_server"
 keycloak-agent = "keycloak_agent.agent_server:agent_server"
 
 [project.entry-points."agent_utilities.skill_providers"]
-modular-contrib = "keycloak_agent.skills"
+keycloak-agent = "keycloak_agent.skills"
 
 [project.entry-points."agent_utilities.prompt_providers"]
-modular-contrib = "keycloak_agent.prompts"
+keycloak-agent = "keycloak_agent.prompts"
 
 [tool.setuptools]
 include-package-data = true
