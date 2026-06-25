@@ -17,7 +17,7 @@ Keycloak Identity and Access Management **MCP Server + Agent** for the agent-uti
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Configuration](#configuration)
+- [Environment Variables](#environment-variables)
 - [MCP Tools](#mcp-tools)
 - [Architecture](#architecture)
 - [Deployment](#deployment)
@@ -65,17 +65,48 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ## Installation
 
-Install in editable mode directly inside your active workspace:
+Pick the extra that matches what you want to run:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `keycloak-agent[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
+| `keycloak-agent[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `keycloak-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
-pip install -e .[all]
+# MCP server only (recommended for tool hosting — slim deps)
+uv pip install "keycloak-agent[mcp]"
+
+# Full agent runtime (Pydantic AI + epistemic-graph engine)
+uv pip install "keycloak-agent[agent]"
+
+# Everything (development)
+uv pip install "keycloak-agent[all]"      # or: python -m pip install "keycloak-agent[all]"
 ```
 
-Or via the `uv` tool:
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/keycloak-agent:mcp` | `--target mcp` | `keycloak-agent[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `keycloak-mcp` |
+| `knucklessg1/keycloak-agent:latest` | `--target agent` (default) | `keycloak-agent[agent]` — **full** agent runtime + epistemic-graph engine | `keycloak-agent` |
 
 ```bash
-uv pip install -e .
+docker build --target mcp   -t knucklessg1/keycloak-agent:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/keycloak-agent:latest docker/   # full agent
 ```
+
+### Knowledge-graph database (`epistemic-graph`)
+
+The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
+transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
+across multiple agents — run **epistemic-graph as its own database container** and point the
+agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
+config, and the full database architecture (with diagrams) are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+The slim `[mcp]` server does **not** require the database.
 
 ---
 
@@ -104,16 +135,65 @@ python -m keycloak_agent.mcp_server
 
 ---
 
-## Configuration
+### MCP Configuration Examples
+
+> **Install the slim `[mcp]` extra.** All examples below install
+> `keycloak-agent[mcp]` — the MCP-server extra that pulls only the FastMCP /
+> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
+> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
+> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
+> (see [Installation](#installation)).
+
+Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+
+```json
+{
+  "mcpServers": {
+    "keycloak-agent": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "keycloak-agent[mcp]",
+        "keycloak-mcp"
+      ],
+      "env": {
+        "KEYCLOAK_URL": "http://localhost:8080",
+        "KEYCLOAK_USERNAME": "admin",
+        "KEYCLOAK_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_REALM": "master"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Environment Variables
 
 The package is fully configurable via the environment variables listed below:
 
+### Connection & credentials
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `KEYCLOAK_URL` | Keycloak Base Admin URL | `http://localhost:8080` | Yes |
 | `KEYCLOAK_USERNAME` | Admin account username | `admin` | Yes |
 | `KEYCLOAK_PASSWORD` | Admin account password | `admin_secure_password` | Yes |
-| `KEYCLOAK_REALM` | KeycloakRealm name | `master` | Yes |
+| `KEYCLOAK_REALM` | Keycloak realm name | `master` | Yes |
+
+### MCP server / transport
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TRANSPORT` | `stdio`, `streamable-http`, or `sse` | `stdio` |
+| `HOST` | Bind host (HTTP transports) | `0.0.0.0` |
+| `PORT` | Bind port (HTTP transports) | `8000` |
+| `MCP_TOOL_MODE` | Tool surface: `condensed`, `verbose`, or `both` | `condensed` |
+
+### Tool toggles
+Each action-routed tool can be disabled individually via its toggle env var (set to `false`).
+The full list is in the [MCP Tools](#mcp-tools) table above
+(e.g. `USERSTOOL`, `CLIENTSTOOL`, `REALMSTOOL`).
 
 A local template is supplied inside [.env.example](.env.example). Copy this file as `.env` and fill out your specific service endpoint parameters before starting execution.
 
