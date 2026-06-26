@@ -27,8 +27,8 @@ The client launches the server over stdio via `uvx` — best for local IDEs
       "args": ["--from", "keycloak-agent", "keycloak-mcp"],
       "env": {
         "KEYCLOAK_URL": "<your-keycloak_url>",
-        "KEYCLOAK_PASSWORD": "<your-keycloak_password>",
-        "KEYCLOAK_USERNAME": "<your-keycloak_username>"
+        "KEYCLOAK_AGENT_PASSWORD": "<your-keycloak_password>",
+        "KEYCLOAK_AGENT_USERNAME": "<your-keycloak_username>"
       }
     }
   }
@@ -57,8 +57,8 @@ Then either let the client launch it:
         "HOST": "0.0.0.0",
         "PORT": "8000",
         "KEYCLOAK_URL": "<your-keycloak_url>",
-        "KEYCLOAK_PASSWORD": "<your-keycloak_password>",
-        "KEYCLOAK_USERNAME": "<your-keycloak_username>"
+        "KEYCLOAK_AGENT_PASSWORD": "<your-keycloak_password>",
+        "KEYCLOAK_AGENT_USERNAME": "<your-keycloak_username>"
       }
     }
   }
@@ -89,8 +89,8 @@ no ports to manage). Swap `docker` for `podman` for a daemonless runtime:
         "run", "-i", "--rm",
         "-e", "TRANSPORT=stdio",
         "-e", "KEYCLOAK_URL=<your-keycloak_url>",
-        "-e", "KEYCLOAK_PASSWORD=<your-keycloak_password>",
-        "-e", "KEYCLOAK_USERNAME=<your-keycloak_username>",
+        "-e", "KEYCLOAK_AGENT_PASSWORD=<your-keycloak_password>",
+        "-e", "KEYCLOAK_AGENT_USERNAME=<your-keycloak_username>",
         "knucklessg1/keycloak-agent:latest"
       ]
     }
@@ -105,8 +105,8 @@ docker run -d --name keycloak-mcp -p 8000:8000 \
   -e TRANSPORT=streamable-http \
   -e PORT=8000 \
   -e KEYCLOAK_URL="<your-keycloak_url>" \
-  -e KEYCLOAK_PASSWORD="<your-keycloak_password>" \
-  -e KEYCLOAK_USERNAME="<your-keycloak_username>" \
+  -e KEYCLOAK_AGENT_PASSWORD="<your-keycloak_password>" \
+  -e KEYCLOAK_AGENT_USERNAME="<your-keycloak_username>" \
   knucklessg1/keycloak-agent:latest
 # or, from a clone of this repo:
 docker compose -f docker/mcp.compose.yml up -d
@@ -192,8 +192,8 @@ curl -s http://localhost:8000/health        # {"status":"OK"}
 | Var | Default | Meaning |
 |---|---|---|
 | `KEYCLOAK_URL` | `http://localhost:8080` | Keycloak base admin URL |
-| `KEYCLOAK_USERNAME` | `admin` | Admin account username |
-| `KEYCLOAK_PASSWORD` | `admin_secure_password` | Admin account password |
+| `KEYCLOAK_AGENT_USERNAME` | `admin` | Admin account username |
+| `KEYCLOAK_AGENT_PASSWORD` | `admin_secure_password` | Admin account password |
 | `KEYCLOAK_REALM` | `master` | Realm name |
 
 Plus `HOST` / `PORT` / `TRANSPORT` for HTTP transports. The full set is documented
@@ -329,8 +329,8 @@ Add to your client's `mcp_config.json` (multiplexer nickname `key`):
       "args": ["run", "keycloak-mcp"],
       "env": {
         "KEYCLOAK_URL": "http://your-keycloak:8080",
-        "KEYCLOAK_USERNAME": "admin",
-        "KEYCLOAK_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
         "KEYCLOAK_REALM": "master"
       }
     }

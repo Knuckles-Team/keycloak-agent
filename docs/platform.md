@@ -62,8 +62,8 @@ curl -fsS http://localhost:8080/realms/master
 
 ```bash
 export KEYCLOAK_URL=http://localhost:8080
-export KEYCLOAK_USERNAME=admin
-export KEYCLOAK_PASSWORD=admin_secure_password
+export KEYCLOAK_AGENT_USERNAME=admin
+export KEYCLOAK_AGENT_PASSWORD=admin_secure_password
 export KEYCLOAK_REALM=master
 
 keycloak-mcp --transport streamable-http --host 0.0.0.0 --port 8000
@@ -90,8 +90,8 @@ services:
     depends_on: [keycloak]
     environment:
       - KEYCLOAK_URL=http://keycloak:8080
-      - KEYCLOAK_USERNAME=admin
-      - KEYCLOAK_PASSWORD=admin_secure_password
+      - KEYCLOAK_AGENT_USERNAME=admin
+      - KEYCLOAK_AGENT_PASSWORD=admin_secure_password
       - KEYCLOAK_REALM=master
       - TRANSPORT=streamable-http
       - HOST=0.0.0.0
