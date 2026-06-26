@@ -52,8 +52,8 @@ Connect it to a Keycloak server:
 
 ```bash
 export KEYCLOAK_URL=http://your-keycloak:8080
-export KEYCLOAK_USERNAME=admin
-export KEYCLOAK_PASSWORD=admin_secure_password
+export KEYCLOAK_AGENT_USERNAME=admin
+export KEYCLOAK_AGENT_PASSWORD=admin_secure_password
 export KEYCLOAK_REALM=master
 keycloak-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 ```

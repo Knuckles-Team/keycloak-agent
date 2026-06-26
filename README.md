@@ -159,9 +159,10 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
       ],
       "env": {
         "KEYCLOAK_URL": "http://localhost:8080",
-        "KEYCLOAK_USERNAME": "admin",
-        "KEYCLOAK_PASSWORD": "admin_secure_password",
-        "KEYCLOAK_REALM": "master"
+        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_REALM": "master",
+        "MCP_TOOL_MODE": "condensed"
       }
     }
   }
@@ -179,9 +180,26 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 | Variable | Example | Description |
 |----------|---------|-------------|
 | `KEYCLOAK_URL` | `http://localhost:8080` | Keycloak Base Admin URL |
-| `KEYCLOAK_USERNAME` | `admin` | Admin account username |
-| `KEYCLOAK_PASSWORD` | `admin_secure_password` | Admin account password |
-| `KEYCLOAK_REALM` | `master` | KeycloakRealm name |
+| `KEYCLOAK_AGENT_BASE_URL` | `http://localhost:8080` | Alias for the base URL (fallback when KEYCLOAK_URL is unset) |
+| `KEYCLOAK_REALM` | `master` | Keycloak realm name |
+| `KEYCLOAK_AGENT_SSL_VERIFY` | `True` | Verify TLS certificates on outbound calls |
+| `KEYCLOAK_AGENT_USERNAME` | `admin` | Admin account username |
+| `KEYCLOAK_AGENT_PASSWORD` | `admin_secure_password` | Admin account password |
+| `KEYCLOAK_TOKEN` | — | Static bearer token (fallback for tests / legacy deploys) |
+| `KEYCLOAK_CLIENT_ID` | — | and auto-refreshed. Set both to use client-credentials instead of basic auth. |
+| `KEYCLOAK_CLIENT_SECRET` | — |  |
+| `MCP_TOOL_MODE` | `condensed` | tools) | verbose (1:1 per-operation tools) | both. |
+| `ATTACK_DETECTIONTOOL` | `True` | MCP tools table (condensed action-routed surface). |
+| `AUTHENTICATIONTOOL` | `True` |  |
+| `CLIENTSTOOL` | `True` |  |
+| `COMPONENTSTOOL` | `True` |  |
+| `GROUPSTOOL` | `True` |  |
+| `IDPSTOOL` | `True` |  |
+| `INFOTOOL` | `True` |  |
+| `ORGANIZATIONSTOOL` | `True` |  |
+| `REALMSTOOL` | `True` |  |
+| `ROLESTOOL` | `True` |  |
+| `USERSTOOL` | `True` |  |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -190,7 +208,6 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 | `TRANSPORT` | `stdio` | MCP transport: `stdio` | `streamable-http` | `sse` |
 | `HOST` | `0.0.0.0` | Bind host (HTTP transports) |
 | `PORT` | `8000` | Bind port (HTTP transports) |
-| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
 | `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
 | `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
 | `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
@@ -210,7 +227,7 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_4 package + 22 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_21 package + 21 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
@@ -220,8 +237,8 @@ The package is fully configurable via the environment variables listed below:
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `KEYCLOAK_URL` | Keycloak Base Admin URL | `http://localhost:8080` | Yes |
-| `KEYCLOAK_USERNAME` | Admin account username | `admin` | Yes |
-| `KEYCLOAK_PASSWORD` | Admin account password | `admin_secure_password` | Yes |
+| `KEYCLOAK_AGENT_USERNAME` | Admin account username | `admin` | Yes |
+| `KEYCLOAK_AGENT_PASSWORD` | Admin account password | `admin_secure_password` | Yes |
 | `KEYCLOAK_REALM` | Keycloak realm name | `master` | Yes |
 
 ### MCP server / transport
@@ -247,6 +264,8 @@ Auto-generated — do not edit between the markers below.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `keycloak_agent_attack_detection` | `ATTACK_DETECTIONTOOL` | Manage Keycloak Agent brute force and attack detection operations. |
@@ -261,7 +280,34 @@ Auto-generated — do not edit between the markers below.
 | `keycloak_agent_roles` | `ROLESTOOL` | Manage Keycloak Agent roles and scope mappings. |
 | `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
 
-_11 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>17 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `keycloak_create_client` | `APITOOL` | Create a client. |
+| `keycloak_create_realm` | `APITOOL` | Create a new realm. |
+| `keycloak_create_user` | `APITOOL` | Create a user. |
+| `keycloak_delete_client` | `APITOOL` | Delete a client. |
+| `keycloak_delete_realm` | `APITOOL` | Delete a realm. |
+| `keycloak_delete_user` | `APITOOL` | Delete a user. |
+| `keycloak_find_client_by_client_id` | `APITOOL` | Find a client by its clientId and return it, or None if not found. |
+| `keycloak_get_client` | `APITOOL` | Get client details. |
+| `keycloak_get_client_secret` | `APITOOL` | Get the client secret for a client UUID. |
+| `keycloak_get_realm` | `APITOOL` | Get realm details. |
+| `keycloak_get_user` | `APITOOL` | Get user details. |
+| `keycloak_list_clients` | `APITOOL` | List clients in a realm. |
+| `keycloak_list_realms` | `APITOOL` | List realms in Keycloak. |
+| `keycloak_list_users` | `APITOOL` | List users in a realm. |
+| `keycloak_regenerate_client_secret` | `APITOOL` | Regenerate (rotate) a confidential client's secret by client UUID. |
+| `keycloak_regenerate_client_secret_by_client_id` | `APITOOL` | Regenerate a client's secret by its human clientId (e.g. 'mcp-multiplexer'). |
+| `keycloak_reset_password` | `APITOOL` | Reset a user's password. |
+
+</details>
+
+_11 action-routed tool(s) (default) · 17 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 See [docs/overview.md](docs/overview.md) or [docs/concepts.md](docs/concepts.md) for deeper operational examples.

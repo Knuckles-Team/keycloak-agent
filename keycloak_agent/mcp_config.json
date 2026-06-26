@@ -6,7 +6,9 @@
         "-m",
         "keycloak_agent.mcp_server"
       ],
-      "env": {}
+      "env": {
+        "MCP_TOOL_MODE": "condensed"
+      }
     }
   }
 }
