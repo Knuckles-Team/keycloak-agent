@@ -137,20 +137,20 @@ python -m keycloak_agent.mcp_server
 
 ### MCP Configuration Examples
 
-> **Install the slim `[mcp]` extra.** All examples below install
-> `keycloak-agent[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
-> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
-> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
-> (see [Installation](#installation)).
+<!-- MCP-CONFIG-EXAMPLES:START -->
 
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+> **Install the slim `[mcp]` extra.** All examples install `keycloak-agent[mcp]` — the
+> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
+> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
+> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
+> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
   "mcpServers": {
-    "keycloak-agent": {
+    "keycloak-mcp": {
       "command": "uvx",
       "args": [
         "--from",
@@ -158,196 +158,124 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "keycloak-mcp"
       ],
       "env": {
-        "KEYCLOAK_URL": "http://localhost:8080",
-        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "MCP_TOOL_MODE": "condensed",
+        "ATTACK_DETECTIONTOOL": "True",
+        "AUTHENTICATIONTOOL": "True",
+        "CLIENTSTOOL": "True",
+        "COMPONENTSTOOL": "True",
+        "GROUPSTOOL": "True",
+        "IDPSTOOL": "True",
+        "INFOTOOL": "True",
+        "KEYCLOAK_AGENT_BASE_URL": "http://localhost:8080",
         "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "KEYCLOAK_CLIENT_ID": "",
+        "KEYCLOAK_CLIENT_SECRET": "",
         "KEYCLOAK_REALM": "master",
-        "MCP_TOOL_MODE": "condensed"
+        "KEYCLOAK_TOKEN": "",
+        "KEYCLOAK_URL": "http://localhost:8080",
+        "ORGANIZATIONSTOOL": "True",
+        "REALMSTOOL": "True",
+        "ROLESTOOL": "True",
+        "USERSTOOL": "True"
       }
     }
   }
 }
 ```
 
----
+#### Streamable-HTTP Transport (networked / production)
 
-## Environment Variables
-
-<!-- ENV-VARS-TABLE:START -->
-
-#### Package environment variables
-
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `KEYCLOAK_URL` | `http://localhost:8080` | Keycloak Base Admin URL |
-| `KEYCLOAK_AGENT_BASE_URL` | `http://localhost:8080` | Alias for the base URL (fallback when KEYCLOAK_URL is unset) |
-| `KEYCLOAK_REALM` | `master` | Keycloak realm name |
-| `KEYCLOAK_AGENT_SSL_VERIFY` | `True` | Verify TLS certificates on outbound calls |
-| `KEYCLOAK_AGENT_USERNAME` | `admin` | Admin account username |
-| `KEYCLOAK_AGENT_PASSWORD` | `admin_secure_password` | Admin account password |
-| `KEYCLOAK_TOKEN` | — | Static bearer token (fallback for tests / legacy deploys) |
-| `KEYCLOAK_CLIENT_ID` | — | and auto-refreshed. Set both to use client-credentials instead of basic auth. |
-| `KEYCLOAK_CLIENT_SECRET` | — |  |
-| `MCP_TOOL_MODE` | `condensed` | tools) | verbose (1:1 per-operation tools) | both. |
-| `ATTACK_DETECTIONTOOL` | `True` | MCP tools table (condensed action-routed surface). |
-| `AUTHENTICATIONTOOL` | `True` |  |
-| `CLIENTSTOOL` | `True` |  |
-| `COMPONENTSTOOL` | `True` |  |
-| `GROUPSTOOL` | `True` |  |
-| `IDPSTOOL` | `True` |  |
-| `INFOTOOL` | `True` |  |
-| `ORGANIZATIONSTOOL` | `True` |  |
-| `REALMSTOOL` | `True` |  |
-| `ROLESTOOL` | `True` |  |
-| `USERSTOOL` | `True` |  |
-
-#### Inherited agent-utilities variables (apply to every connector)
-
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `TRANSPORT` | `stdio` | MCP transport: `stdio` | `streamable-http` | `sse` |
-| `HOST` | `0.0.0.0` | Bind host (HTTP transports) |
-| `PORT` | `8000` | Bind port (HTTP transports) |
-| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
-| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
-| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
-| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
-| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` | `embedded` | `remote` |
-| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
-| `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
-| `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
-| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
-| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
-| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
-| `DEBUG` | `False` | Verbose logging |
-| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
-| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
-| `PROVIDER` | `openai` | LLM provider for the agent |
-| `MODEL_ID` | `gpt-4o` | Model id for the agent |
-| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
-
-_21 package + 21 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
-<!-- ENV-VARS-TABLE:END -->
-
-
-The package is fully configurable via the environment variables listed below:
-
-### Connection & credentials
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `KEYCLOAK_URL` | Keycloak Base Admin URL | `http://localhost:8080` | Yes |
-| `KEYCLOAK_AGENT_USERNAME` | Admin account username | `admin` | Yes |
-| `KEYCLOAK_AGENT_PASSWORD` | Admin account password | `admin_secure_password` | Yes |
-| `KEYCLOAK_REALM` | Keycloak realm name | `master` | Yes |
-
-### MCP server / transport
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `TRANSPORT` | `stdio`, `streamable-http`, or `sse` | `stdio` |
-| `HOST` | Bind host (HTTP transports) | `0.0.0.0` |
-| `PORT` | Bind port (HTTP transports) | `8000` |
-| `MCP_TOOL_MODE` | Tool surface: `condensed`, `verbose`, or `both` | `condensed` |
-
-### Tool toggles
-Each action-routed tool can be disabled individually via its toggle env var (set to `false`).
-The full list is in the [MCP Tools](#mcp-tools) table above
-(e.g. `USERSTOOL`, `CLIENTSTOOL`, `REALMSTOOL`).
-
-A local template is supplied inside [.env.example](.env.example). Copy this file as `.env` and fill out your specific service endpoint parameters before starting execution.
-
----
-
-## MCP Tools
-
-Auto-generated — do not edit between the markers below.
-
-<!-- MCP-TOOLS-TABLE:START -->
-
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
-
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `keycloak_agent_attack_detection` | `ATTACK_DETECTIONTOOL` | Manage Keycloak Agent brute force and attack detection operations. |
-| `keycloak_agent_authentication` | `AUTHENTICATIONTOOL` | Manage Keycloak Agent authentication and authenticator flow operations. |
-| `keycloak_agent_clients` | `CLIENTSTOOL` | Manage Keycloak Agent clients operations. |
-| `keycloak_agent_components` | `COMPONENTSTOOL` | Manage Keycloak Agent components operations. |
-| `keycloak_agent_groups` | `GROUPSTOOL` | Manage Keycloak Agent groups operations. |
-| `keycloak_agent_idps` | `IDPSTOOL` | Manage Keycloak Agent identity providers operations. |
-| `keycloak_agent_info` | `INFOTOOL` | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
-| `keycloak_agent_organizations` | `ORGANIZATIONSTOOL` | Manage Keycloak Agent organizations operations. |
-| `keycloak_agent_realms` | `REALMSTOOL` | Manage Keycloak Agent realms operations. |
-| `keycloak_agent_roles` | `ROLESTOOL` | Manage Keycloak Agent roles and scope mappings. |
-| `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
-
-#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
-
-<details>
-<summary>17 per-operation tools — one per public API method (click to expand)</summary>
-
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `keycloak_create_client` | `APITOOL` | Create a client. |
-| `keycloak_create_realm` | `APITOOL` | Create a new realm. |
-| `keycloak_create_user` | `APITOOL` | Create a user. |
-| `keycloak_delete_client` | `APITOOL` | Delete a client. |
-| `keycloak_delete_realm` | `APITOOL` | Delete a realm. |
-| `keycloak_delete_user` | `APITOOL` | Delete a user. |
-| `keycloak_find_client_by_client_id` | `APITOOL` | Find a client by its clientId and return it, or None if not found. |
-| `keycloak_get_client` | `APITOOL` | Get client details. |
-| `keycloak_get_client_secret` | `APITOOL` | Get the client secret for a client UUID. |
-| `keycloak_get_realm` | `APITOOL` | Get realm details. |
-| `keycloak_get_user` | `APITOOL` | Get user details. |
-| `keycloak_list_clients` | `APITOOL` | List clients in a realm. |
-| `keycloak_list_realms` | `APITOOL` | List realms in Keycloak. |
-| `keycloak_list_users` | `APITOOL` | List users in a realm. |
-| `keycloak_regenerate_client_secret` | `APITOOL` | Regenerate (rotate) a confidential client's secret by client UUID. |
-| `keycloak_regenerate_client_secret_by_client_id` | `APITOOL` | Regenerate a client's secret by its human clientId (e.g. 'mcp-multiplexer'). |
-| `keycloak_reset_password` | `APITOOL` | Reset a user's password. |
-
-</details>
-
-_11 action-routed tool(s) (default) · 17 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
-<!-- MCP-TOOLS-TABLE:END -->
-
-See [docs/overview.md](docs/overview.md) or [docs/concepts.md](docs/concepts.md) for deeper operational examples.
-
----
-
-## Architecture
-
-This package uses the standardized Agent-Utilities dynamic facade architecture:
-
-```mermaid
-graph TD
-    User([User Agent]) --> Server[FastMCP Server]
-    Server --> Facade[Api Dynamic Facade]
-    Facade --> ClientBase[ApiClientBase]
-    Facade --> Auth[Credentials Auth Handler]
-    ClientBase --> Service([External Service API])
+```json
+{
+  "mcpServers": {
+    "keycloak-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "keycloak-agent[mcp]",
+        "keycloak-mcp",
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "TRANSPORT": "streamable-http",
+        "HOST": "0.0.0.0",
+        "PORT": "8000",
+        "MCP_TOOL_MODE": "condensed",
+        "ATTACK_DETECTIONTOOL": "True",
+        "AUTHENTICATIONTOOL": "True",
+        "CLIENTSTOOL": "True",
+        "COMPONENTSTOOL": "True",
+        "GROUPSTOOL": "True",
+        "IDPSTOOL": "True",
+        "INFOTOOL": "True",
+        "KEYCLOAK_AGENT_BASE_URL": "http://localhost:8080",
+        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "KEYCLOAK_CLIENT_ID": "",
+        "KEYCLOAK_CLIENT_SECRET": "",
+        "KEYCLOAK_REALM": "master",
+        "KEYCLOAK_TOKEN": "",
+        "KEYCLOAK_URL": "http://localhost:8080",
+        "ORGANIZATIONSTOOL": "True",
+        "REALMSTOOL": "True",
+        "ROLESTOOL": "True",
+        "USERSTOOL": "True"
+      }
+    }
+  }
+}
 ```
 
----
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
-## Deployment
+```json
+{
+  "mcpServers": {
+    "keycloak-mcp": {
+      "url": "http://localhost:8000/keycloak-mcp/mcp"
+    }
+  }
+}
+```
 
-### Bare-Metal (Standard pip)
-1. Set up your Python virtual environment (>= 3.10).
-2. Install the package: `pip install .[all]`
-3. Export credentials:
-   ```bash
-   export KEYCLOAK_URL="http://localhost:8080"
-   ```
-4. Run: `python -m keycloak_agent.mcp_server`
-
-### Container (Docker Compose)
-A standard compose structure is provided inside the `docker/` folder. Build and deploy:
+Deploying the Streamable-HTTP server via Docker:
 
 ```bash
-docker compose -f docker/compose.yml up --build -d
+docker run -d \
+  --name keycloak-mcp-mcp \
+  -p 8000:8000 \
+  -e TRANSPORT=streamable-http \
+  -e HOST=0.0.0.0 \
+  -e PORT=8000 \
+  -e MCP_TOOL_MODE=condensed \
+  -e ATTACK_DETECTIONTOOL=True \
+  -e AUTHENTICATIONTOOL=True \
+  -e CLIENTSTOOL=True \
+  -e COMPONENTSTOOL=True \
+  -e GROUPSTOOL=True \
+  -e IDPSTOOL=True \
+  -e INFOTOOL=True \
+  -e KEYCLOAK_AGENT_BASE_URL=http://localhost:8080 \
+  -e KEYCLOAK_AGENT_PASSWORD=admin_secure_password \
+  -e KEYCLOAK_AGENT_USERNAME=admin \
+  -e KEYCLOAK_CLIENT_ID="" \
+  -e KEYCLOAK_CLIENT_SECRET="" \
+  -e KEYCLOAK_REALM=master \
+  -e KEYCLOAK_TOKEN="" \
+  -e KEYCLOAK_URL=http://localhost:8080 \
+  -e ORGANIZATIONSTOOL=True \
+  -e REALMSTOOL=True \
+  -e ROLESTOOL=True \
+  -e USERSTOOL=True \
+  knucklessg1/keycloak-agent:mcp
 ```
 
----
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options

@@ -7,7 +7,26 @@
         "keycloak_agent.mcp_server"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed"
+        "MCP_TOOL_MODE": "condensed",
+        "ATTACK_DETECTIONTOOL": "True",
+        "AUTHENTICATIONTOOL": "True",
+        "CLIENTSTOOL": "True",
+        "COMPONENTSTOOL": "True",
+        "GROUPSTOOL": "True",
+        "IDPSTOOL": "True",
+        "INFOTOOL": "True",
+        "KEYCLOAK_AGENT_BASE_URL": "http://localhost:8080",
+        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
+        "KEYCLOAK_AGENT_USERNAME": "admin",
+        "KEYCLOAK_CLIENT_ID": "",
+        "KEYCLOAK_CLIENT_SECRET": "",
+        "KEYCLOAK_REALM": "master",
+        "KEYCLOAK_TOKEN": "",
+        "KEYCLOAK_URL": "http://localhost:8080",
+        "ORGANIZATIONSTOOL": "True",
+        "REALMSTOOL": "True",
+        "ROLESTOOL": "True",
+        "USERSTOOL": "True"
       }
     }
   }
