@@ -1,4 +1,4 @@
-"""CONCEPT:KEY-001 Dynamic client facade orchestration and resource mappings."""
+"""CONCEPT:AU-KG.ontology.package-scoped-concept Dynamic client facade orchestration and resource mappings."""
 
 #!/usr/bin/env python
 from keycloak_agent.api.api_client_clients import Api as ClientsApi

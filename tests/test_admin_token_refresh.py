@@ -1,6 +1,6 @@
 """Service-account admin auth: per-request bearer + 401 re-mint/retry.
 
-CONCEPT:KEY-003 — keycloak-mcp authenticates to the admin API with a
+CONCEPT:KC-OS.identity.keycloak-mcp-authenticates-admin — keycloak-mcp authenticates to the admin API with a
 self-refreshing client-credentials token instead of a baked static token.
 """
 

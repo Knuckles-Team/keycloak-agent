@@ -1,9 +1,9 @@
 import pytest
 
 
-@pytest.mark.concept("KEY-002")
+@pytest.mark.concept("KC-OS.governance.key")
 def test_mcp_server_registration():
-    """CONCEPT:KEY-002 Test that tools register successfully."""
+    """CONCEPT:KC-OS.governance.key Test that tools register successfully."""
     from keycloak_agent.mcp_server import get_mcp_instance
 
     res = get_mcp_instance()
@@ -17,9 +17,9 @@ def test_mcp_server_registration():
     assert len(mcp._local_provider._components) > 0
 
 
-@pytest.mark.concept("KEY-003")
+@pytest.mark.concept("KC-OS.identity.keycloak-mcp-authenticates-admin")
 def test_mcp_server_security_context():
-    """CONCEPT:KEY-003 Verify that the server registers with correct security credentials."""
+    """CONCEPT:KC-OS.identity.keycloak-mcp-authenticates-admin Verify that the server registers with correct security credentials."""
     from keycloak_agent.auth import get_client
 
     client = get_client()

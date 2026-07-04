@@ -1,4 +1,4 @@
-"""CONCEPT:KEY-003 Identity credentials loader and session manager."""
+"""CONCEPT:KC-OS.identity.keycloak-mcp-authenticates-admin Identity credentials loader and session manager."""
 
 from agent_utilities.base_utilities import get_logger
 from agent_utilities.core.config import setting

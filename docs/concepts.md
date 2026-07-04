@@ -1,12 +1,12 @@
 # Concept Registry — Keycloak MCP
 
 > **Prefix**: `CONCEPT:KEY-*`
-> **Bridge**: `CONCEPT:ECO-4.0` (Unified Toolkit Ingestion)
+> **Bridge**: `CONCEPT:AU-ECO.messaging.native-backend-abstraction` (Unified Toolkit Ingestion)
 
 ## Project-Specific Concepts
 
 | Concept ID | Name | Description |
 |------------|------|-------------|
-| `CONCEPT:KEY-001` | Core API Client Operations | Exposes core client capability facade |
-| `CONCEPT:KEY-002` | FastMCP Tools Execution | Exposes FastMCP tool interface capabilities |
-| `CONCEPT:KEY-003` | Identity & Gateway Security | Exposes authentication, authorization, and secure transport operations |
+| `CONCEPT:AU-KG.ontology.package-scoped-concept` | Core API Client Operations | Exposes core client capability facade |
+| `CONCEPT:KC-OS.governance.key` | FastMCP Tools Execution | Exposes FastMCP tool interface capabilities |
+| `CONCEPT:KC-OS.identity.keycloak-mcp-authenticates-admin` | Identity & Gateway Security | Exposes authentication, authorization, and secure transport operations |

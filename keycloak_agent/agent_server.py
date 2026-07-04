@@ -18,7 +18,7 @@ DEFAULT_AGENT_SYSTEM_PROMPT = None
 
 def agent_server():
     """Start graph-based Pydantic AI agent server.
-    CONCEPT:KEY-007
+    CONCEPT:KC-OS.identity.key-2
     """
     from agent_utilities import (
         build_system_prompt_from_workspace,
