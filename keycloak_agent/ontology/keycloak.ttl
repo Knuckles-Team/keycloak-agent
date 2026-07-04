@@ -1,0 +1,123 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Keycloak identity & access-management ontology — realms, users, clients, groups and
+# roles. All classes and properties live in the shared `:` (kg#) namespace; only the
+# owl:Ontology node gets the per-package IRI. Backs the keycloak-agent MCP tool surface
+# (keycloak_agent_realms / keycloak_agent_users / keycloak_agent_clients /
+# keycloak_agent_groups / keycloak_agent_roles / …).
+
+:Realm a owl:Class ;
+    rdfs:label "Realm" ;
+    rdfs:comment "A Keycloak realm — an isolated security domain owning its own users, clients, groups and roles (keycloak_agent_realms)." .
+
+:User a owl:Class ;
+    rdfs:label "Keycloak User" ;
+    rdfs:comment "A user account within a realm; a realm-scoped identity that authenticates and holds roles/group memberships (keycloak_agent_users). A subclass-of-usage of the shared :Person identity." ;
+    rdfs:subClassOf :Person .
+
+:Client a owl:Class ;
+    rdfs:label "Client" ;
+    rdfs:comment "An application or service registered in a realm that requests authentication (OIDC/SAML), e.g. a confidential or public client (keycloak_agent_clients)." .
+
+:Group a owl:Class ;
+    rdfs:label "Group" ;
+    rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups)." .
+
+:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "A realm-level or client-level role granting permissions to users, groups or composite roles (keycloak_agent_roles)." .
+
+:IdentityProvider a owl:Class ;
+    rdfs:label "Identity Provider" ;
+    rdfs:comment "An external IdP federated into a realm for brokered login (keycloak_agent_idps)." .
+
+# --- links (owl:ObjectProperty) ---
+
+:inRealm a owl:ObjectProperty ;
+    rdfs:label "in realm" ;
+    rdfs:comment "Links a User, Client, Group, Role or IdentityProvider to the Realm that owns it." ;
+    rdfs:range :Realm .
+
+:memberOfGroup a owl:ObjectProperty ;
+    rdfs:label "member of group" ;
+    rdfs:comment "Links a User to a Group it belongs to." ;
+    rdfs:domain :User ;
+    rdfs:range :Group .
+
+:hasSubGroup a owl:ObjectProperty ;
+    rdfs:label "has subgroup" ;
+    rdfs:comment "Links a Group to a nested child Group." ;
+    rdfs:domain :Group ;
+    rdfs:range :Group .
+
+:hasRole a owl:ObjectProperty ;
+    rdfs:label "has role" ;
+    rdfs:comment "Links a User or Group to a Role assigned to it." ;
+    rdfs:range :Role .
+
+:federatesIdentityProvider a owl:ObjectProperty ;
+    rdfs:label "federates identity provider" ;
+    rdfs:comment "Links a Realm to an IdentityProvider it brokers login through." ;
+    rdfs:domain :Realm ;
+    rdfs:range :IdentityProvider .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:realmName a owl:DatatypeProperty ;
+    rdfs:label "realm name" ;
+    rdfs:comment "The realm identifier (the `realm` field), e.g. `homelab` or `master`." ;
+    rdfs:range xsd:string .
+
+:username a owl:DatatypeProperty ;
+    rdfs:label "username" ;
+    rdfs:comment "Login username of a Keycloak User." ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .
+
+:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:comment "Email address of a User." ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string .
+
+:enabled a owl:DatatypeProperty ;
+    rdfs:label "enabled" ;
+    rdfs:comment "Whether a Realm, User or Client is enabled/active." ;
+    rdfs:range xsd:boolean .
+
+:clientId a owl:DatatypeProperty ;
+    rdfs:label "client id" ;
+    rdfs:comment "The public `clientId` of a Client (distinct from its internal UUID)." ;
+    rdfs:domain :Client ;
+    rdfs:range xsd:string .
+
+:protocol a owl:DatatypeProperty ;
+    rdfs:label "protocol" ;
+    rdfs:comment "Authentication protocol of a Client (openid-connect, saml)." ;
+    rdfs:domain :Client ;
+    rdfs:range xsd:string .
+
+:publicClient a owl:DatatypeProperty ;
+    rdfs:label "public client" ;
+    rdfs:comment "Whether a Client is public (no secret) versus confidential." ;
+    rdfs:domain :Client ;
+    rdfs:range xsd:boolean .
+
+:groupPath a owl:DatatypeProperty ;
+    rdfs:label "group path" ;
+    rdfs:comment "The full `/parent/child` path of a Group in the realm hierarchy." ;
+    rdfs:domain :Group ;
+    rdfs:range xsd:string .
+
+<http://knuckles.team/kg/keycloak> a owl:Ontology ;
+    rdfs:label "Keycloak Identity & Access Management Ontology" ;
+    rdfs:comment """Keycloak IAM model — realms, users, clients, groups, roles and
+    federated identity providers, with their ownership and membership relationships —
+    federated into the agent-utilities knowledge-graph hub.""" ;
+    owl:imports <http://knuckles.team/kg> .

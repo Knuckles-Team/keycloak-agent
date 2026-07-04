@@ -5,6 +5,7 @@ from keycloak_agent.mcp.mcp_components import register_components_tools
 from keycloak_agent.mcp.mcp_groups import register_groups_tools
 from keycloak_agent.mcp.mcp_idps import register_idps_tools
 from keycloak_agent.mcp.mcp_info import register_info_tools
+from keycloak_agent.mcp.mcp_ingest import register_ingest_tools
 from keycloak_agent.mcp.mcp_organizations import register_organizations_tools
 from keycloak_agent.mcp.mcp_realms import register_realms_tools
 from keycloak_agent.mcp.mcp_roles import register_roles_tools
@@ -18,6 +19,7 @@ __all__ = [
     "register_groups_tools",
     "register_idps_tools",
     "register_info_tools",
+    "register_ingest_tools",
     "register_organizations_tools",
     "register_realms_tools",
     "register_roles_tools",

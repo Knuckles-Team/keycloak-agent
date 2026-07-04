@@ -1,0 +1,14 @@
+{
+  "_comment": "Tier-1 mcp_tool source preset(s) for keycloak-agent (AU-KG.ingest.mcp-tool-connector). Syncs Keycloak realms into the KG as identity-domain documents via the keycloak-agent MCP server. Contributed presets win over the central MCP_TOOL_PRESETS. Extend with users/clients/groups presets as needed.",
+  "keycloak-realms": {
+    "server": "keycloak-agent",
+    "tool": "keycloak_agent_realms",
+    "action": "list_realms",
+    "records_path": "",
+    "id_field": "realm",
+    "title_field": "displayName",
+    "text_field": "realm",
+    "updated_field": "",
+    "doc_type": "keycloak_realm"
+  }
+}
