@@ -1,5 +1,6 @@
 ---
 name: keycloak-client-onboarder
+skill_type: skill
 description: >
   Keycloak Client Onboarder atomic skill. Provisions and configures OIDC single sign-on (SSO)
   clients within the Keycloak realm using keycloak-mcp or keycloak-agent.
