@@ -1,0 +1,4 @@
+interface:
+  display_name: "Keycloak Agent Operations"
+  short_description: "Help with Keycloak Agent Operations tasks"
+  default_prompt: "Use $keycloak-agent-operations to complete a governed provider workflow."

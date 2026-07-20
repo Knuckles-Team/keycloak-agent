@@ -28,7 +28,7 @@ def register_info_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         # Initialize with all dynamic methods
         all_methods = dict(client.list_dynamic_methods())

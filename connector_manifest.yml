@@ -131,6 +131,7 @@ sync:
   updated_field: ''
   pagination: null
   doc_type: keycloak_realm
+  tool_schema_sha256: 723894566ec98fdd0f42479f9cb2da3bd0c98d0d706311ded129d24e67ff5976
   raw:
     server: keycloak-agent
     tool: keycloak_agent_realms
@@ -143,16 +144,19 @@ sync:
     doc_type: keycloak_realm
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-07-09T00:00:00Z'
+  generated_at: '2026-07-18T00:00:00Z'
   source_artifacts:
   - keycloak_agent/connectors/mcp_source_presets.json
+  - keycloak_agent/connectors/tool_schema_fingerprints.json
   - keycloak_agent/ontology/keycloak.ttl
   integrity:
     algorithm: urdna2015-sha256
     hash: ff96e788037b12c513d7b84e451eddd5fcc520e6480d7872a8b4dea00efc4c2d
     triple_count: 61
   signer: ontology-manifest-generator
-  signature: 2b287aaa6df9ecb795323a0bef94e28eb7c9bd57fb31dbeffd1a6707b8d97352
+  signature_algorithm: ed25519
+  signing_public_key: q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4
+  signature: lEqn9ak2_L6RISeV96XbvEjdOdM1bFpFeu5oMmU4nJjDwNFEDUMHgrkzhT_B2SdlvTA24LYYVUVuCn1SD7kKBw
 policy:
   pii_fields:
     Client:

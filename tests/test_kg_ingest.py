@@ -9,6 +9,9 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 
 from __future__ import annotations
 
+import pytest
+from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
+
 from keycloak_agent.kg_ingest import (
     ingest_clients,
     ingest_entities,
@@ -21,6 +24,7 @@ from keycloak_agent.kg_ingest import (
 class _FakeTxn:
     def __init__(self):
         self.nodes = {}
+        self.edges = []
         self.committed = False
 
     def begin(self, graph=None):
@@ -30,33 +34,27 @@ class _FakeTxn:
     def add_node(self, txn, node_id, props):
         self.nodes[node_id] = props
 
+    def add_edge(self, txn, source, target, props):
+        self.edges.append((source, target, props))
+
     def commit(self, txn):
         self.committed = True
         return True
 
 
-class _FakeEdges:
-    def __init__(self):
-        self.edges = []
-
-    def add(self, src, dst, props):
-        self.edges.append((src, dst, props))
-
-
 class _FakeClient:
     def __init__(self):
         self.txn = _FakeTxn()
-        self.edges = _FakeEdges()
 
 
 def test_ingest_entities_writes_nodes_and_edges():
     c = _FakeClient()
     res = ingest_entities(
         [
-            {"id": "a", "type": "User", "username": "u"},
-            {"id": "b", "type": "Realm"},
+            {"id": "a", "node_type": "User", "username": "u"},
+            {"id": "b", "node_type": "Realm"},
         ],
-        [{"source": "a", "target": "b", "type": "inRealm"}],
+        [{"source": "a", "target": "b", "relationship": "inRealm"}],
         client=c,
         graph="__commons__",
     )
@@ -66,7 +64,7 @@ def test_ingest_entities_writes_nodes_and_edges():
     # provenance is stamped
     assert c.txn.nodes["a"]["source"] == "keycloak-agent"
     assert c.txn.nodes["a"]["domain"] == "keycloak"
-    assert c.edges.edges == [("a", "b", {"type": "inRealm"})]
+    assert c.txn.edges == [("a", "b", {"relationship": "inRealm"})]
 
 
 def test_ingest_realms_maps_realm():
@@ -78,7 +76,7 @@ def test_ingest_realms_maps_realm():
     )
     assert res == {"nodes": 1, "edges": 0}
     node = c.txn.nodes["keycloak:realm:homelab"]
-    assert node["type"] == "Realm"
+    assert node["node_type"] == "Realm"
     assert node["realmName"] == "homelab"
     assert node["externalToolId"] == "homelab"
 
@@ -92,11 +90,11 @@ def test_ingest_users_maps_user_and_realm_link():
         graph="__commons__",
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert c.txn.nodes["keycloak:user:u1"]["type"] == "User"
+    assert c.txn.nodes["keycloak:user:u1"]["node_type"] == "User"
     assert c.txn.nodes["keycloak:user:u1"]["username"] == "alice"
-    assert c.txn.nodes["keycloak:realm:homelab"]["type"] == "Realm"
-    assert c.edges.edges == [
-        ("keycloak:user:u1", "keycloak:realm:homelab", {"type": "inRealm"})
+    assert c.txn.nodes["keycloak:realm:homelab"]["node_type"] == "Realm"
+    assert c.txn.edges == [
+        ("keycloak:user:u1", "keycloak:realm:homelab", {"relationship": "inRealm"})
     ]
 
 
@@ -118,11 +116,11 @@ def test_ingest_clients_maps_client_and_realm_link():
     )
     assert res == {"nodes": 2, "edges": 1}
     node = c.txn.nodes["keycloak:client:cuuid1"]
-    assert node["type"] == "Client"
+    assert node["node_type"] == "Client"
     assert node["clientId"] == "grafana"
     assert node["publicClient"] is False
-    assert c.edges.edges == [
-        ("keycloak:client:cuuid1", "keycloak:realm:homelab", {"type": "inRealm"})
+    assert c.txn.edges == [
+        ("keycloak:client:cuuid1", "keycloak:realm:homelab", {"relationship": "inRealm"})
     ]
 
 
@@ -143,24 +141,24 @@ def test_ingest_groups_walks_subgroups():
     )
     # 2 groups + 1 realm node; edges: 2 inRealm + 1 hasSubGroup
     assert res == {"nodes": 3, "edges": 3}
-    assert c.txn.nodes["keycloak:group:g1"]["type"] == "Group"
+    assert c.txn.nodes["keycloak:group:g1"]["node_type"] == "Group"
     assert c.txn.nodes["keycloak:group:g1"]["groupPath"] == "/admins"
     assert c.txn.nodes["keycloak:group:g2"]["groupPath"] == "/admins/ops"
     assert (
         "keycloak:group:g1",
         "keycloak:group:g2",
-        {"type": "hasSubGroup"},
-    ) in c.edges.edges
+        {"relationship": "hasSubGroup"},
+    ) in c.txn.edges
 
 
-def test_ingest_noops_without_engine():
-    # No injected client + no reachable engine -> clean no-op.
-    assert ingest_entities([{"id": "a", "type": "User"}]) is None
+def test_retired_node_type_alias_is_rejected():
+    with pytest.raises(NativeIngestError, match="canonical node_type"):
+        ingest_entities(
+            [{"id": "retired", "type": "RetiredAlias"}],
+            client=_FakeClient(),
+        )
 
 
-def test_ingest_empty_is_noop():
-    assert ingest_entities([], client=_FakeClient()) is None
-    assert ingest_realms([], client=_FakeClient()) is None
-    assert ingest_users([], client=_FakeClient()) is None
-    assert ingest_clients([], client=_FakeClient()) is None
-    assert ingest_groups([], client=_FakeClient()) is None
+def test_empty_native_ingest_is_rejected():
+    with pytest.raises(NativeIngestError, match="at least one entity"):
+        ingest_entities([], client=_FakeClient())

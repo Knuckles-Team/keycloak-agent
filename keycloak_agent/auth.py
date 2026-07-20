@@ -2,6 +2,10 @@
 
 from agent_utilities.base_utilities import get_logger
 from agent_utilities.core.config import setting
+from agent_utilities.core.transport_security import (
+    ResolvedTLSProfile,
+    resolve_configured_tls_profile,
+)
 from agent_utilities.mcp.client_credentials import ClientCredentialsTokenProvider
 
 from keycloak_agent.api_client import Api
@@ -9,25 +13,24 @@ from keycloak_agent.api_client import Api
 logger = get_logger(__name__)
 
 
-def get_client() -> Api:
+def get_client(tls_profile: ResolvedTLSProfile | None = None) -> Api:
     """Get authenticated client for keycloak_agent."""
-    base_url = setting("KEYCLOAK_URL") or setting("KEYCLOAK_AGENT_BASE_URL", "")
+    base_url = setting("KEYCLOAK_URL", "")
     token = setting("KEYCLOAK_TOKEN", "")
     username = setting("KEYCLOAK_AGENT_USERNAME", "")
     password = setting("KEYCLOAK_AGENT_PASSWORD", "")
-    verify = setting("KEYCLOAK_AGENT_SSL_VERIFY", True)
     client_id = setting("KEYCLOAK_CLIENT_ID", "")
     client_secret = setting("KEYCLOAK_CLIENT_SECRET", "")
     realm = setting("KEYCLOAK_REALM", "master")
 
     if not base_url:
-        # Default fallback for testing
-        base_url = "http://localhost"
+        raise RuntimeError("KEYCLOAK_URL is required")
+    profile = tls_profile or resolve_configured_tls_profile("keycloak_agent")
 
     # Preferred admin auth: a service-account client whose bearer is minted from
     # Keycloak's token endpoint and auto-refreshed (cache + pre-expiry refresh +
     # 401 re-mint via ApiClientBase). Static KEYCLOAK_TOKEN / basic-auth remain a
-    # fallback for tests and legacy deploys.
+    # explicit alternatives when the operator supplies those credentials.
     token_provider = None
     if client_id and client_secret:
         token_url = (
@@ -37,7 +40,6 @@ def get_client() -> Api:
             token_url=token_url,
             client_id=client_id,
             client_secret=client_secret,
-            verify=verify,
         )
 
     return Api(
@@ -45,6 +47,6 @@ def get_client() -> Api:
         token=token,
         username=username,
         password=password,
-        verify=verify,
+        tls_profile=profile,
         token_provider=token_provider,
     )

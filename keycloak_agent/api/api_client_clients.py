@@ -66,7 +66,7 @@ class Api(ApiClientBase):
         """
         found = self.find_client_by_client_id(realm, client_id)
         if not found:
-            raise ValueError(f"Client '{client_id}' not found in realm '{realm}'")
+            raise ValueError("Configured client was not found in the configured realm")
         uuid = found["id"]
         result = self.regenerate_client_secret(realm, uuid)
         if isinstance(result, dict):

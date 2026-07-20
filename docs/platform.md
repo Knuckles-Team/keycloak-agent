@@ -61,9 +61,9 @@ curl -fsS http://localhost:8080/realms/master
 ## Connect keycloak-agent
 
 ```bash
-export KEYCLOAK_URL=http://localhost:8080
-export KEYCLOAK_AGENT_USERNAME=admin
-export KEYCLOAK_AGENT_PASSWORD=admin_secure_password
+export KEYCLOAK_URL=<configured-endpoint>
+export KEYCLOAK_AGENT_USERNAME=<configured-principal>
+export KEYCLOAK_AGENT_PASSWORD=<runtime-secret>
 export KEYCLOAK_REALM=master
 
 keycloak-mcp --transport streamable-http --host 0.0.0.0 --port 8000
@@ -86,12 +86,12 @@ services:
     ports: ["8080:8080"]
 
   keycloak-agent:
-    image: knucklessg1/keycloak-agent:latest
+    image: example/keycloak-agent@sha256:<digest>
     depends_on: [keycloak]
     environment:
-      - KEYCLOAK_URL=http://keycloak:8080
-      - KEYCLOAK_AGENT_USERNAME=admin
-      - KEYCLOAK_AGENT_PASSWORD=admin_secure_password
+      - KEYCLOAK_URL=${KEYCLOAK_URL:?required}
+      - KEYCLOAK_AGENT_USERNAME=${KEYCLOAK_AGENT_USERNAME:?required}
+      - KEYCLOAK_AGENT_PASSWORD=${KEYCLOAK_AGENT_PASSWORD:?required}
       - KEYCLOAK_REALM=master
       - TRANSPORT=streamable-http
       - HOST=0.0.0.0

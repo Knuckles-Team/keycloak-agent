@@ -48,18 +48,18 @@ uv run keycloak-mcp
 
 ## Prebuilt Docker image
 
-A multi-stage, slim image is published on every release (installs
+A multi-stage runtime image is published on every release (installs
 `keycloak-agent[all]`, entrypoint `keycloak-mcp`):
 
 ```bash
-docker pull knucklessg1/keycloak-agent:latest
+docker pull example/keycloak-agent@sha256:<digest>
 
 docker run --rm -i \
-  -e KEYCLOAK_URL=http://your-keycloak:8080 \
-  -e KEYCLOAK_AGENT_USERNAME=admin \
-  -e KEYCLOAK_AGENT_PASSWORD=admin_secure_password \
+  -e KEYCLOAK_URL=<configured-endpoint> \
+  -e KEYCLOAK_AGENT_USERNAME=<configured-principal> \
+  -e KEYCLOAK_AGENT_PASSWORD=<runtime-secret> \
   -e KEYCLOAK_REALM=master \
-  knucklessg1/keycloak-agent:latest        # stdio transport (default)
+  example/keycloak-agent@sha256:<digest>        # stdio transport (default)
 ```
 
 For an HTTP server with a published port, see [Deployment](deployment.md).

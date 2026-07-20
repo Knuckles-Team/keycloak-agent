@@ -1,0 +1,19 @@
+{
+  "connector": "keycloak-agent",
+  "fixtures": [
+    {
+      "expected": {
+        "acl_state": "quarantine",
+        "id": "fixture-record",
+        "title": "Synthetic certification record"
+      },
+      "preset": "keycloak-realms",
+      "record": {
+        "acl_public": false,
+        "displayName": "Synthetic certification record",
+        "realm": "Synthetic content used only for contract validation."
+      }
+    }
+  ],
+  "schema_version": "1"
+}

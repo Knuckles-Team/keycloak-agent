@@ -69,15 +69,15 @@ Pick the extra that matches what you want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `keycloak-agent[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
-| `keycloak-agent[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `keycloak-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
+| `keycloak-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
 | `keycloak-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
-# MCP server only (recommended for tool hosting — slim deps)
+# Connector-focused MCP server (includes the shared graph engine)
 uv pip install "keycloak-agent[mcp]"
 
-# Full agent runtime (Pydantic AI + epistemic-graph engine)
+# Agent runtime (adds model orchestration to the shared graph engine)
 uv pip install "keycloak-agent[agent]"
 
 # Everything (development)
@@ -90,23 +90,24 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/keycloak-agent:mcp` | `--target mcp` | `keycloak-agent[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `keycloak-mcp` |
-| `knucklessg1/keycloak-agent:latest` | `--target agent` (default) | `keycloak-agent[agent]` — **full** agent runtime + epistemic-graph engine | `keycloak-agent` |
+| `example/keycloak-agent:mcp` | `--target mcp` | `keycloak-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `keycloak-mcp` |
+| `example/keycloak-agent@sha256:<digest>` | `--target agent` (default) | `keycloak-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `keycloak-agent` |
 
 ```bash
-docker build --target mcp   -t knucklessg1/keycloak-agent:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/keycloak-agent:latest docker/   # full agent
+docker build --target mcp   -t example/keycloak-agent:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t example/keycloak-agent:agent-local docker/   # agent runtime
 ```
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
-transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
-across multiple agents — run **epistemic-graph as its own database container** and point the
-agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
-config, and the full database architecture (with diagrams) are documented in the
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` additionally enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
 [epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
-The slim `[mcp]` server does **not** require the database.
 
 ---
 
@@ -139,11 +140,10 @@ python -m keycloak_agent.mcp_server
 
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
-> **Install the slim `[mcp]` extra.** All examples install `keycloak-agent[mcp]` — the
-> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
-> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
-> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
-> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+> **Install the connector-focused `[mcp]` extra.** Examples use `keycloak-agent[mcp]` to add
+> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
@@ -158,7 +158,7 @@ python -m keycloak_agent.mcp_server
         "keycloak-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",
@@ -166,14 +166,7 @@ python -m keycloak_agent.mcp_server
         "GROUPSTOOL": "True",
         "IDPSTOOL": "True",
         "INFOTOOL": "True",
-        "KEYCLOAK_AGENT_BASE_URL": "http://localhost:8080",
-        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
-        "KEYCLOAK_AGENT_USERNAME": "admin",
-        "KEYCLOAK_CLIENT_ID": "",
-        "KEYCLOAK_CLIENT_SECRET": "",
         "KEYCLOAK_REALM": "master",
-        "KEYCLOAK_TOKEN": "",
-        "KEYCLOAK_URL": "http://localhost:8080",
         "ORGANIZATIONSTOOL": "True",
         "REALMSTOOL": "True",
         "ROLESTOOL": "True",
@@ -183,6 +176,10 @@ python -m keycloak_agent.mcp_server
   }
 }
 ```
+
+Runtime references require an alias-aware launcher such as GraphOS. Other
+launchers must omit those entries and inject the resolved values through their
+own runtime secret boundary.
 
 #### Streamable-HTTP Transport (networked / production)
 
@@ -202,9 +199,9 @@ python -m keycloak_agent.mcp_server
       ],
       "env": {
         "TRANSPORT": "streamable-http",
-        "HOST": "0.0.0.0",
+        "HOST": "127.0.0.1",
         "PORT": "8000",
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",
@@ -212,14 +209,7 @@ python -m keycloak_agent.mcp_server
         "GROUPSTOOL": "True",
         "IDPSTOOL": "True",
         "INFOTOOL": "True",
-        "KEYCLOAK_AGENT_BASE_URL": "http://localhost:8080",
-        "KEYCLOAK_AGENT_PASSWORD": "admin_secure_password",
-        "KEYCLOAK_AGENT_USERNAME": "admin",
-        "KEYCLOAK_CLIENT_ID": "",
-        "KEYCLOAK_CLIENT_SECRET": "",
         "KEYCLOAK_REALM": "master",
-        "KEYCLOAK_TOKEN": "",
-        "KEYCLOAK_URL": "http://localhost:8080",
         "ORGANIZATIONSTOOL": "True",
         "REALMSTOOL": "True",
         "ROLESTOOL": "True",
@@ -242,16 +232,18 @@ Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 }
 ```
 
-Deploying the Streamable-HTTP server via Docker:
+Run a reviewed container image as a least-privilege stdio child (no
+listener or published port):
 
 ```bash
-docker run -d \
-  --name keycloak-mcp-mcp \
-  -p 8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e HOST=0.0.0.0 \
-  -e PORT=8000 \
-  -e MCP_TOOL_MODE=condensed \
+docker run -i --rm \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=256 \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  -e TRANSPORT=stdio \
+  -e MCP_TOOL_MODE=intent \
   -e ATTACK_DETECTIONTOOL=True \
   -e AUTHENTICATIONTOOL=True \
   -e CLIENTSTOOL=True \
@@ -259,20 +251,18 @@ docker run -d \
   -e GROUPSTOOL=True \
   -e IDPSTOOL=True \
   -e INFOTOOL=True \
-  -e KEYCLOAK_AGENT_BASE_URL=http://localhost:8080 \
-  -e KEYCLOAK_AGENT_PASSWORD=admin_secure_password \
-  -e KEYCLOAK_AGENT_USERNAME=admin \
-  -e KEYCLOAK_CLIENT_ID="" \
-  -e KEYCLOAK_CLIENT_SECRET="" \
   -e KEYCLOAK_REALM=master \
-  -e KEYCLOAK_TOKEN="" \
-  -e KEYCLOAK_URL=http://localhost:8080 \
   -e ORGANIZATIONSTOOL=True \
   -e REALMSTOOL=True \
   -e ROLESTOOL=True \
   -e USERSTOOL=True \
-  knucklessg1/keycloak-agent:mcp
+  registry.example.invalid/keycloak-agent@sha256:<digest> keycloak-mcp
 ```
+
+For containerized network HTTP, supply an authenticated TLS ingress (or
+direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
+CIDR policy through the operator-owned deployment profile. The generator
+does not emit an unauthenticated non-loopback listener.
 
 _Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
 <!-- MCP-CONFIG-EXAMPLES:END -->
@@ -280,21 +270,21 @@ _Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options
 
-`keycloak-agent` can also run as a **local container** (Docker / Podman / `uv`) or be
-consumed from a **remote deployment**. The
-[Deployment guide](https://knuckles-team.github.io/keycloak-agent/deployment/) has full, copy-paste
-`mcp_config.json` for all four transports — **stdio**, **streamable-http**,
-**local container / uv**, and **remote URL**:
+`keycloak-agent` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/keycloak-agent/deployment/) carries
+the detailed transport contract.
 
-- **Local container / uv** — launch the server from `mcp_config.json` via `uvx`,
-  `docker run`, or `podman run`, or point at a local streamable-http container by `url`.
-- **Remote URL** — connect to a server deployed behind Caddy at
-  `http://keycloak-mcp.arpa/mcp` using the `"url"` key.
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
 ## Contributing
 
-Please audit all code changes against ecosystem guidelines in [CONTRIBUTING.md](CONTRIBUTING.md) if available, and run:
+Please audit all code changes against the repository's contribution and review requirements, and run:
 
 ```bash
 pre-commit run --all-files
@@ -324,23 +314,40 @@ the recommended reference for installation, deployment, and day-to-day operation
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
 
 
-<!-- BEGIN agent-os-genesis-deploy (generated; do not edit between markers) -->
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
 
-## Deploy with `agent-os-genesis`
+## Deploy with `agent-utilities-deployment`
 
-This package can be provisioned for you — skill-guided — by the **`agent-os-genesis`**
-universal skill (its *single-package deploy mode*): it picks your install method, seeds
-secrets to OpenBao/Vault (or `.env`), trusts your enterprise CA, registers the MCP
-server, and verifies it — the same machinery that stands up the whole Agent OS, narrowed
-to just this package. Ask your agent to **"deploy `keycloak-agent` with agent-os-genesis"**.
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `keycloak-agent` with agent-utilities-deployment"**.
 
 | Install mode | Command |
 |------|---------|
-| Bare-metal, prod (PyPI) | `uvx keycloak-mcp` · or `uv tool install keycloak-agent` |
-| Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
-| Container, prod | deploy `knucklessg1/keycloak-agent:latest` via docker-compose / swarm / podman / podman-compose / kubernetes |
-| Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
+| Installed package | `uv tool install "keycloak-agent[mcp]"`, then run `keycloak-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `keycloak-mcp` |
+| Immutable container | deploy `registry.example.invalid/keycloak-agent@sha256:<digest>` through the operator-selected orchestrator |
 
-Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
 
-<!-- END agent-os-genesis-deploy -->
+<!-- END agent-utilities-deployment -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

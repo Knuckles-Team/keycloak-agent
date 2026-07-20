@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "connector": "keycloak-agent",
+  "schema_version": "1",
+  "tools": {
+    "keycloak_agent_realms": "723894566ec98fdd0f42479f9cb2da3bd0c98d0d706311ded129d24e67ff5976"
+  }
+}

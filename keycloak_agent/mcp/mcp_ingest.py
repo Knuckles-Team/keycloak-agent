@@ -3,8 +3,7 @@
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. Each tool lists real records via the
 Keycloak Admin client and pushes them into the knowledge graph as typed OWL nodes
 (``:Realm`` / ``:User`` / ``:Client`` / ``:Group``) via ``keycloak_agent.kg_ingest``.
-Best-effort: with no reachable engine the ingest step no-ops and the tool reports
-``{"ingested": None}``.
+Native-ingest failures propagate to the caller.
 """
 
 from __future__ import annotations
@@ -67,8 +66,8 @@ def register_ingest_tools(mcp: FastMCP):
         """List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links)."""
         try:
             kwargs = json.loads(params_json) if params_json else {}
-        except Exception as e:  # noqa: BLE001
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:  # noqa: BLE001
+            return {"error": "Operation failed"}
         realm = kwargs.get("realm")
         if not realm:
             return {"error": "Missing required 'realm' in params_json."}
@@ -89,8 +88,8 @@ def register_ingest_tools(mcp: FastMCP):
         """List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``)."""
         try:
             kwargs = json.loads(params_json) if params_json else {}
-        except Exception as e:  # noqa: BLE001
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:  # noqa: BLE001
+            return {"error": "Operation failed"}
         realm = kwargs.get("realm")
         if not realm:
             return {"error": "Missing required 'realm' in params_json."}
@@ -111,8 +110,8 @@ def register_ingest_tools(mcp: FastMCP):
         """List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``)."""
         try:
             kwargs = json.loads(params_json) if params_json else {}
-        except Exception as e:  # noqa: BLE001
-            return {"error": f"Invalid params_json: {e}"}
+        except Exception:  # noqa: BLE001
+            return {"error": "Operation failed"}
         realm = kwargs.get("realm")
         if not realm:
             return {"error": "Missing required 'realm' in params_json."}

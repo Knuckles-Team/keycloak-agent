@@ -1,0 +1,6 @@
+{
+  "connector": "keycloak-agent",
+  "current_ontology_source": "keycloak",
+  "migrations": [],
+  "schema_version": "1"
+}
