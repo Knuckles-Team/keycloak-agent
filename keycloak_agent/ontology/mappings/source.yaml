@@ -3,7 +3,7 @@ connector: keycloak-agent
 ontology_source: keycloak
 sync:
 - preset: keycloak-realms
-  server: keycloak-agent
+  server: keycloak-mcp
   tool: keycloak_agent_realms
   action: list_realms
   records_path: ''
