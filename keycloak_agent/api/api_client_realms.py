@@ -25,7 +25,9 @@ class Api(ApiClientBase):
             realms = [
                 r
                 for r in realms
-                if not isinstance(r, dict) or not r.get("realm") or r["realm"] in entitled
+                if not isinstance(r, dict)
+                or not r.get("realm")
+                or r["realm"] in entitled
             ]
         return realms
 

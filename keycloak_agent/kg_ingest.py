@@ -98,7 +98,11 @@ def ingest_users(
         rname = _realm_of(user, realm)
         if rname:
             entities.append(
-                {"id": f"keycloak:realm:{rname}", "node_type": "Realm", "realmName": rname}
+                {
+                    "id": f"keycloak:realm:{rname}",
+                    "node_type": "Realm",
+                    "realmName": rname,
+                }
             )
             relationships.append(
                 {
@@ -140,7 +144,11 @@ def ingest_clients(
         rname = _realm_of(rec, realm)
         if rname:
             entities.append(
-                {"id": f"keycloak:realm:{rname}", "node_type": "Realm", "realmName": rname}
+                {
+                    "id": f"keycloak:realm:{rname}",
+                    "node_type": "Realm",
+                    "realmName": rname,
+                }
             )
             relationships.append(
                 {
