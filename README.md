@@ -166,6 +166,7 @@ python -m keycloak_agent.mcp_server
         "GROUPSTOOL": "True",
         "IDPSTOOL": "True",
         "INFOTOOL": "True",
+        "INGESTTOOL": "True",
         "KEYCLOAK_REALM": "master",
         "ORGANIZATIONSTOOL": "True",
         "REALMSTOOL": "True",
@@ -209,6 +210,7 @@ own runtime secret boundary.
         "GROUPSTOOL": "True",
         "IDPSTOOL": "True",
         "INFOTOOL": "True",
+        "INGESTTOOL": "True",
         "KEYCLOAK_REALM": "master",
         "ORGANIZATIONSTOOL": "True",
         "REALMSTOOL": "True",
@@ -251,6 +253,7 @@ docker run -i --rm \
   -e GROUPSTOOL=True \
   -e IDPSTOOL=True \
   -e INFOTOOL=True \
+  -e INGESTTOOL=True \
   -e KEYCLOAK_REALM=master \
   -e ORGANIZATIONSTOOL=True \
   -e REALMSTOOL=True \
@@ -351,3 +354,120 @@ and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
 network transport, connector ingestion, GraphOS delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
+
+## Environment Variables
+
+<!-- ENV-VARS-TABLE:START -->
+
+#### Package environment variables
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `KEYCLOAK_URL` | — | Keycloak base Admin URL (required) |
+| `KEYCLOAK_REALM` | `master` | Keycloak realm name |
+| `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
+| `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
+| `KEYCLOAK_AGENT_USERNAME` | — | Admin account username |
+| `KEYCLOAK_AGENT_PASSWORD` | secret-injected | Admin account password |
+| `KEYCLOAK_TOKEN` | secret-injected | Static bearer token |
+| `KEYCLOAK_CLIENT_ID` | — | A service-account client whose bearer is minted from Keycloak's token endpoint and auto-refreshed. Set both to use client-credentials instead of basic auth. |
+| `KEYCLOAK_CLIENT_SECRET` | secret-injected |  |
+| `KEYCLOAK_CLIENT_AUDIENCE` | — | Token audience the minted bearer is scoped to. Defaults to KEYCLOAK_CLIENT_ID (self-audience) when unset. |
+| `MCP_TOOL_MODE` | `condensed` | MCP_TOOL_MODE selects which tools are exposed: condensed (default, action-routed tools) \| verbose (1:1 per-operation tools) \| both. |
+| `ATTACK_DETECTIONTOOL` | `True` | These names match the authoritative "Toggle Env Var" column in the README MCP tools table (condensed action-routed surface). |
+| `AUTHENTICATIONTOOL` | `True` |  |
+| `CLIENTSTOOL` | `True` |  |
+| `COMPONENTSTOOL` | `True` |  |
+| `GROUPSTOOL` | `True` |  |
+| `IDPSTOOL` | `True` |  |
+| `INFOTOOL` | `True` |  |
+| `INGESTTOOL` | `True` |  |
+| `ORGANIZATIONSTOOL` | `True` |  |
+| `REALMSTOOL` | `True` |  |
+| `ROLESTOOL` | `True` |  |
+| `USERSTOOL` | `True` |  |
+
+#### Inherited agent-utilities variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `TRANSPORT` | `stdio` | MCP transport: `stdio` \| `streamable-http` \| `sse` |
+| `HOST` | `127.0.0.1` | Loopback bind host (set an authenticated ingress explicitly) |
+| `PORT` | `8000` | Bind port (HTTP transports) |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` \| `embedded` \| `remote` |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
+| `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
+| `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` \| `basic` \| `none` |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET_REF` | `secret://identity/oidc-client-secret` | Runtime secret reference for the OIDC service account |
+| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
+| `MCP_BASIC_AUTH_PASSWORD_REF` | `secret://identity/mcp-basic-password` | Runtime secret reference for HTTP Basic auth (`MCP_CLIENT_AUTH=basic`) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | `openai` | LLM provider for the agent |
+| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_23 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
+
+## Available MCP Tools
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `keycloak_agent_attack_detection` | `ATTACK_DETECTIONTOOL` | Manage Keycloak Agent brute force and attack detection operations. |
+| `keycloak_agent_authentication` | `AUTHENTICATIONTOOL` | Manage Keycloak Agent authentication and authenticator flow operations. |
+| `keycloak_agent_clients` | `CLIENTSTOOL` | Manage Keycloak Agent clients operations. |
+| `keycloak_agent_components` | `COMPONENTSTOOL` | Manage Keycloak Agent components operations. |
+| `keycloak_agent_groups` | `GROUPSTOOL` | Manage Keycloak Agent groups operations. |
+| `keycloak_agent_idps` | `IDPSTOOL` | Manage Keycloak Agent identity providers operations. |
+| `keycloak_agent_info` | `INFOTOOL` | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
+| `keycloak_agent_organizations` | `ORGANIZATIONSTOOL` | Manage Keycloak Agent organizations operations. |
+| `keycloak_agent_realms` | `REALMSTOOL` | Manage Keycloak Agent realms operations. |
+| `keycloak_agent_roles` | `ROLESTOOL` | Manage Keycloak Agent roles and scope mappings. |
+| `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
+| `keycloak_ingest_clients` | `INGESTTOOL` | List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``). |
+| `keycloak_ingest_groups` | `INGESTTOOL` | List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``). |
+| `keycloak_ingest_realms` | `INGESTTOOL` | List all realms and ingest them into epistemic-graph as ``:Realm`` nodes. |
+| `keycloak_ingest_users` | `INGESTTOOL` | List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links). |
+
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>17 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `keycloak_create_client` | `APITOOL` | Create a client. |
+| `keycloak_create_realm` | `APITOOL` | Create a new realm. |
+| `keycloak_create_user` | `APITOOL` | Create a user. |
+| `keycloak_delete_client` | `APITOOL` | Delete a client. |
+| `keycloak_delete_realm` | `APITOOL` | Delete a realm. |
+| `keycloak_delete_user` | `APITOOL` | Delete a user. |
+| `keycloak_find_client_by_client_id` | `APITOOL` | Find a client by its clientId and return it, or None if not found. |
+| `keycloak_get_client` | `APITOOL` | Get client details. |
+| `keycloak_get_client_secret` | `APITOOL` | Get the client secret for a client UUID. |
+| `keycloak_get_realm` | `APITOOL` | Get realm details. Denied if the caller is not entitled to the realm. |
+| `keycloak_get_user` | `APITOOL` | Get user details. |
+| `keycloak_list_clients` | `APITOOL` | List clients in a realm. |
+| `keycloak_list_realms` | `APITOOL` | List realms in Keycloak the caller is entitled to. |
+| `keycloak_list_users` | `APITOOL` | List users in a realm. |
+| `keycloak_regenerate_client_secret` | `APITOOL` | Regenerate (rotate) a confidential client's secret by client UUID. |
+| `keycloak_regenerate_client_secret_by_client_id` | `APITOOL` | Regenerate a client's secret by its human clientId (e.g. 'mcp-multiplexer'). |
+| `keycloak_reset_password` | `APITOOL` | Reset a user's password. |
+
+</details>
+
+_15 action-routed tool(s) · 17 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
