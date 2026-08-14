@@ -36,10 +36,12 @@ def get_client(tls_profile: ResolvedTLSProfile | None = None) -> Api:
         token_url = (
             f"{base_url.rstrip('/')}/realms/{realm}/protocol/openid-connect/token"
         )
+        audience = setting("KEYCLOAK_CLIENT_AUDIENCE", "") or client_id
         token_provider = ClientCredentialsTokenProvider(
             token_url=token_url,
             client_id=client_id,
             client_secret=client_secret,
+            audience=audience,
         )
 
     return Api(

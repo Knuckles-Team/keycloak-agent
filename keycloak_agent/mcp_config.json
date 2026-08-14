@@ -7,7 +7,7 @@
         "keycloak_agent.mcp_server"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",
@@ -15,13 +15,8 @@
         "GROUPSTOOL": "True",
         "IDPSTOOL": "True",
         "INFOTOOL": "True",
-        "KEYCLOAK_AGENT_PASSWORD": "",
-        "KEYCLOAK_AGENT_USERNAME": "",
-        "KEYCLOAK_CLIENT_ID": "",
-        "KEYCLOAK_CLIENT_SECRET": "",
+        "INGESTTOOL": "True",
         "KEYCLOAK_REALM": "master",
-        "KEYCLOAK_TOKEN": "",
-        "KEYCLOAK_URL": "",
         "ORGANIZATIONSTOOL": "True",
         "REALMSTOOL": "True",
         "ROLESTOOL": "True",
