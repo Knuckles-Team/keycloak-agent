@@ -1,8 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "a2a.json": "b812039426513b3940cf3ec217d9b2bc2e542f23bf61abbfcf6b183a770ebd6d",
-    "connector_manifest.yml": "e704c42f605e1d46256076b4a3051fd7bcb172d151ecd2158542052b64d34a75",
+    "connector_manifest.yml": "9b77581b5fc7aa3a44e7bc51e7153d65943943f717f648b7e04a20b266ed619c",
     "keycloak_agent/connectors/mcp_source_presets.json": "bdeb40572cb9785701e950498ae492cdd617a829e4a9e3332128d9ebdf8ad959",
     "keycloak_agent/connectors/tool_schema_fingerprints.json": "2ed9ce6e5a93f40a04d8787e4ec31991ecefd1f19ab165a5fdc05f42cb910b04",
     "keycloak_agent/ontology/fixtures/records.json": "b805feca91bdac2f51386c2d2fb1308b1b1414752db55b414af2b2bb328e9eb8",
@@ -19,19 +18,19 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.1.0,<3",
+    "agent_utilities": ">=2.4.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.23.0,<3"
+    "epistemic_graph": ">=2.26.0,<3"
   },
   "connector": "keycloak-agent",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "eeF_KUqLvB9yg_AbZtkq2f9TOm2xUiy6Pp2JtTkRYtnhKcp-lDnrM3p9q5KE4jKjwmnMfRT5hwkiGyw0qVrPBw",
-  "signature_algorithm": "ed25519",
-  "signer": "ontology-manifest-generator",
-  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
+  "signature": null,
+  "signature_algorithm": "none",
+  "signer": "UNSIGNED-PREVIEW",
+  "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-07-31T04:00:00Z"
+  "validated_at": "2026-08-21T04:30:39Z"
 }
