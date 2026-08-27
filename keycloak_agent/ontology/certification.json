@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "9b77581b5fc7aa3a44e7bc51e7153d65943943f717f648b7e04a20b266ed619c",
+    "connector_manifest.yml": "b37a4233b2e7e46c33579d2431829a07a70b38023a959a23c72702222cb4408c",
     "keycloak_agent/connectors/mcp_source_presets.json": "bdeb40572cb9785701e950498ae492cdd617a829e4a9e3332128d9ebdf8ad959",
     "keycloak_agent/connectors/tool_schema_fingerprints.json": "2ed9ce6e5a93f40a04d8787e4ec31991ecefd1f19ab165a5fdc05f42cb910b04",
     "keycloak_agent/ontology/fixtures/records.json": "b805feca91bdac2f51386c2d2fb1308b1b1414752db55b414af2b2bb328e9eb8",
@@ -18,9 +18,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "keycloak-agent",
   "kind": "ConnectorSourceAttestation",
@@ -32,5 +32,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }
