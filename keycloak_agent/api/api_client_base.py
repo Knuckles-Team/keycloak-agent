@@ -10,6 +10,108 @@ from agent_utilities.core.transport_security import (
     resolve_configured_tls_profile,
 )
 
+# Direct (path, HTTP method) -> generated-method-name overrides for the main
+# realm endpoints, where the generic path-segment naming below would collide
+# ("admin/realms" GET/POST both operate on the collection, not one segment).
+_DIRECT_REALM_METHOD_NAMES = {
+    ("admin/realms", "GET"): "list_realms",
+    ("admin/realms", "POST"): "create_realm",
+    ("admin/realms/{realm}", "GET"): "get_realm",
+    ("admin/realms/{realm}", "PUT"): "update_realm",
+    ("admin/realms/{realm}", "DELETE"): "delete_realm",
+}
+
+_POST_ACTION_TOKENS = (
+    "copy",
+    "reset",
+    "trigger",
+    "execute",
+    "clear",
+    "lower_priority",
+    "raise_priority",
+)
+_GET_SINGLETON_TOKENS = ("count", "status", "validate")
+
+# HTTP verbs whose generated-method prefix is a fixed rename, independent of path.
+_METHOD_PREFIX_BY_VERB = {
+    "put": "update",
+    "delete": "delete",
+}
+
+
+def _strip_realm_prefix(p: str) -> str:
+    """Strip a leading 'admin/realms/{realm}/' or 'admin/' path prefix."""
+    realm_prefix = "admin/realms/{realm}"
+    if p.startswith(realm_prefix):
+        return p[len(realm_prefix) :].strip("/")
+    if p.startswith("admin/"):
+        return p[len("admin/") :].strip("/")
+    return p
+
+
+def _path_segment_to_name_part(part: str) -> str:
+    if part.startswith("{") and part.endswith("}"):
+        param = part[1:-1].replace("-", "_")
+        return f"by_{param}"
+    return part.replace("-", "_")
+
+
+def _get_method_prefix(parts: list[str], cleaned_path: str) -> str:
+    if parts and parts[-1].startswith("by_"):
+        return "get"
+    if any(token in cleaned_path for token in _GET_SINGLETON_TOKENS):
+        return "get"
+    return "list"
+
+
+def _post_method_prefix(cleaned_path: str) -> str:
+    if any(token in cleaned_path for token in _POST_ACTION_TOKENS):
+        return "post"
+    return "create"
+
+
+def _method_prefix(method_lower: str, parts: list[str], cleaned_path: str) -> str:
+    if method_lower == "get":
+        return _get_method_prefix(parts, cleaned_path)
+    if method_lower == "post":
+        return _post_method_prefix(cleaned_path)
+    return _METHOD_PREFIX_BY_VERB.get(method_lower, method_lower)
+
+
+def _resolve_path_placeholder_value(ph: str, remaining: dict) -> Any:
+    ph_alt = ph.replace("-", "_")
+    if ph in remaining:
+        return remaining.pop(ph)
+    if ph_alt in remaining:
+        return remaining.pop(ph_alt)
+    if ph == "realm":
+        return "master"
+    raise ValueError(f"Missing required path parameter: {ph}")
+
+
+def _substitute_path_placeholders(path_template: str, remaining: dict) -> str:
+    """Fill every ``{placeholder}`` in path_template, popping matches out of
+    ``remaining`` (mutated in place) as it goes."""
+    path = path_template
+    for ph in re.findall(r"\{([^{}]+)\}", path_template):
+        val = _resolve_path_placeholder_value(ph, remaining)
+        path = path.replace(f"{{{ph}}}", str(val))
+    return path
+
+
+def _extract_request_body(method: str, remaining: dict) -> Any:
+    """For a body-carrying verb, pop the body out of ``remaining`` (mutated
+    in place): an explicit body/representation/data key, else every
+    leftover kwarg becomes the body and ``remaining`` is drained."""
+    if method not in ["POST", "PUT", "PATCH"]:
+        return None
+    for key in ("body", "representation", "data"):
+        if key in remaining:
+            return remaining.pop(key)
+    body = dict(remaining)
+    remaining.clear()
+    return body
+
 
 class ApiClientBase:
     _schema: dict[str, Any] | None = None
@@ -91,72 +193,16 @@ class ApiClientBase:
         p = path.strip("/")
 
         # Direct mappings for main realm endpoints
-        if p == "admin/realms":
-            if method == "GET":
-                return "list_realms"
-            if method == "POST":
-                return "create_realm"
-        if p == "admin/realms/{realm}":
-            if method == "GET":
-                return "get_realm"
-            if method == "PUT":
-                return "update_realm"
-            if method == "DELETE":
-                return "delete_realm"
+        direct_name = _DIRECT_REALM_METHOD_NAMES.get((p, method))
+        if direct_name:
+            return direct_name
 
-        # Strip '/admin/realms/{realm}' or '/admin' prefixes
-        realm_prefix = "admin/realms/{realm}"
-        if p.startswith(realm_prefix):
-            p = p[len(realm_prefix) :].strip("/")
-        elif p.startswith("admin/"):
-            p = p[len("admin/") :].strip("/")
+        p = _strip_realm_prefix(p)
 
-        parts = []
-        for part in p.split("/"):
-            if part.startswith("{") and part.endswith("}"):
-                param = part[1:-1].replace("-", "_")
-                parts.append(f"by_{param}")
-            else:
-                parts.append(part.replace("-", "_"))
-
+        parts = [_path_segment_to_name_part(part) for part in p.split("/")]
         cleaned_path = "_".join(parts)
         method_lower = method.lower()
-
-        if method_lower == "get":
-            if parts and parts[-1].startswith("by_"):
-                prefix = "get"
-            else:
-                prefix = (
-                    "list"
-                    if not (
-                        "count" in cleaned_path
-                        or "status" in cleaned_path
-                        or "validate" in cleaned_path
-                    )
-                    else "get"
-                )
-        elif method_lower == "post":
-            if any(
-                x in cleaned_path
-                for x in [
-                    "copy",
-                    "reset",
-                    "trigger",
-                    "execute",
-                    "clear",
-                    "lower_priority",
-                    "raise_priority",
-                ]
-            ):
-                prefix = "post"
-            else:
-                prefix = "create"
-        elif method_lower == "put":
-            prefix = "update"
-        elif method_lower == "delete":
-            prefix = "delete"
-        else:
-            prefix = method_lower
+        prefix = _method_prefix(method_lower, parts, cleaned_path)
 
         name = f"{prefix}_{cleaned_path}"
         name = re.sub(r"_+", "_", name).strip("_")
@@ -187,37 +233,9 @@ class ApiClientBase:
     def _execute_dynamic_call(
         self, method: str, path_template: str, kwargs: dict
     ) -> Any:
-        placeholders = re.findall(r"\{([^{}]+)\}", path_template)
-        path = path_template
         remaining = kwargs.copy()
-
-        for ph in placeholders:
-            ph_key = ph
-            ph_key_alt = ph.replace("-", "_")
-            val = None
-            if ph_key in remaining:
-                val = remaining.pop(ph_key)
-            elif ph_key_alt in remaining:
-                val = remaining.pop(ph_key_alt)
-            else:
-                if ph == "realm":
-                    val = "master"
-                else:
-                    raise ValueError(f"Missing required path parameter: {ph}")
-            path = path.replace(f"{{{ph}}}", str(val))
-
-        body = None
-        if method in ["POST", "PUT", "PATCH"]:
-            if "body" in remaining:
-                body = remaining.pop("body")
-            elif "representation" in remaining:
-                body = remaining.pop("representation")
-            elif "data" in remaining:
-                body = remaining.pop("data")
-            else:
-                body = remaining
-                remaining = {}
-
+        path = _substitute_path_placeholders(path_template, remaining)
+        body = _extract_request_body(method, remaining)
         params = remaining if remaining else None
         return self.request(method, path, params=params, data=body)
 
