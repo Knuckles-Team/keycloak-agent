@@ -139,7 +139,7 @@ sync:
   updated_field: ''
   pagination: null
   doc_type: keycloak_realm
-  tool_schema_sha256: 723894566ec98fdd0f42479f9cb2da3bd0c98d0d706311ded129d24e67ff5976
+  tool_schema_sha256: a07cb92b2630a43ef16db59e4fcb0be3f135499cb642a23edc6a0a1bb4ed2b98
   raw:
     server: keycloak-mcp
     tool: keycloak_agent_realms

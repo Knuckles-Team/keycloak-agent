@@ -1,3 +1,5 @@
+from typing import Literal
+
 """MCP tools for realms operations."""
 
 from fastmcp import Context, FastMCP
@@ -12,7 +14,9 @@ def register_realms_tools(mcp: FastMCP):
 
     @mcp.tool(tags=["realms"])
     async def keycloak_agent_realms(
-        action: str = Field(
+        action: Literal[
+            "create_realm", "delete_realm", "get_realm", "list_realms"
+        ] = Field(
             description="Action to perform. e.g. 'list_realms', 'get_realm', 'create_realm', 'delete_realm', etc."
         ),
         params_json: str = Field(
