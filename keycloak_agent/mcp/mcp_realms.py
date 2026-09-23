@@ -12,7 +12,18 @@ from keycloak_agent.auth import get_client
 def register_realms_tools(mcp: FastMCP):
     """Register Keycloak Agent realms tools."""
 
-    @mcp.tool(tags=["realms"])
+    @mcp.tool(
+        tags=["realms"],
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": False,
+            "openWorldHint": True,
+        },
+        meta={
+            "eg.annotations": {"modalities_in": ["text"], "modalities_out": ["text"]}
+        },
+    )
     async def keycloak_agent_realms(
         action: Literal[
             "create_realm", "delete_realm", "get_realm", "list_realms"
