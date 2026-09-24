@@ -1,12 +1,10 @@
 """CONCEPT:KC-OS.identity.keycloak-mcp-authenticates-admin Identity credentials loader and session manager."""
 
-from agent_utilities.base_utilities import get_logger
-from agent_utilities.core.config import setting
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_configured_tls_profile,
-)
-from agent_utilities.mcp.client_credentials import ClientCredentialsTokenProvider
+from agent_connector_sdk.utilities import get_logger
+from agent_connector_sdk.config import setting
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from agent_connector_sdk.auth.client_credentials import ClientCredentialsTokenProvider
 
 from keycloak_agent.api_client import Api
 
@@ -25,7 +23,7 @@ def get_client(tls_profile: ResolvedTLSProfile | None = None) -> Api:
 
     if not base_url:
         raise RuntimeError("KEYCLOAK_URL is required")
-    profile = tls_profile or resolve_configured_tls_profile("keycloak_agent")
+    profile = tls_profile or resolve_tls_profile("keycloak_agent")
 
     # Preferred admin auth: a service-account client whose bearer is minted from
     # Keycloak's token endpoint and auto-refreshed (cache + pre-expiry refresh +
