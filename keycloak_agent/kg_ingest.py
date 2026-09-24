@@ -214,3 +214,78 @@ def ingest_groups(
     for grp in groups or []:
         _walk(grp, None)
     return ingest_entities(entities, relationships, client=client, graph=graph)
+
+
+# ── EH-410: pseudonymized security-audit events ──────────────────────────────
+# Operator ruling 2026-09-24: identities are keyed HMAC references, IPs are cut to
+# /24 (IPv4) or /48 (IPv6), and only the allowlisted scalar fields below pass --
+# free-form ``details``/``representation`` bodies never do.
+_USER_EVENT_POLICY = {
+    "keep": ("type", "time", "clientId", "error", "realmId"),
+    "identities": ("userId", "sessionId", "details.username"),
+    "ips": ("ipAddress",),
+}
+_ADMIN_EVENT_POLICY = {
+    "keep": ("operationType", "resourceType", "time", "error", "realmId"),
+    "identities": ("authDetails.userId", "authDetails.clientId"),
+    "secret_paths": ("resourcePath",),
+    "ips": ("authDetails.ipAddress",),
+}
+
+
+def _event_node(
+    event: dict[str, Any], node_type: str, realm: str, pseudonymizer: Any, policy: Any
+) -> dict[str, Any]:
+    import json
+
+    fingerprint = json.dumps(event, sort_keys=True, default=str)
+    node = pseudonymizer.record(event, policy)
+    node.update(
+        {
+            "id": f"keycloak:event:{pseudonymizer.reference('event', fingerprint)}",
+            "node_type": node_type,
+            "realmName": realm,
+            "epistemic_class": "observation",
+        }
+    )
+    return node
+
+
+def ingest_security_events(
+    events: list[dict[str, Any]],
+    *,
+    realm: str,
+    admin: bool = False,
+    pseudonymizer: Any | None = None,
+    client: Any | None = None,
+    graph: str | None = None,
+) -> dict[str, int]:
+    """Map Keycloak user/admin events → pseudonymized ``:AuthenticationEvent`` /
+    ``:AdminAuditEvent`` nodes (+ ``:inRealm``) and ingest them.
+
+    ``pseudonymizer`` defaults to the deployment key in OpenBao
+    (``AuditPseudonymizer.from_settings``); without it the feed refuses.
+    """
+    from agent_utilities.security.audit_pseudonym import (
+        AuditFieldPolicy,
+        AuditPseudonymizer,
+    )
+
+    pseudo = pseudonymizer or AuditPseudonymizer.from_settings()
+    spec = _ADMIN_EVENT_POLICY if admin else _USER_EVENT_POLICY
+    policy = AuditFieldPolicy(**spec)
+    node_type = "AdminAuditEvent" if admin else "AuthenticationEvent"
+    realm_id = f"keycloak:realm:{realm}"
+    entities: list[dict[str, Any]] = [
+        _event_node(event, node_type, realm, pseudo, policy)
+        for event in events or []
+        if isinstance(event, dict)
+    ]
+    if not entities:
+        return {"nodes": 0, "edges": 0}
+    relationships = [
+        {"source": node["id"], "target": realm_id, "relationship": "inRealm"}
+        for node in entities
+    ]
+    entities.append({"id": realm_id, "node_type": "Realm", "realmName": realm})
+    return ingest_entities(entities, relationships, client=client, graph=graph)

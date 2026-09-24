@@ -48,3 +48,30 @@ class Api(ApiClientBase):
     def delete_realm(self, realm_name: str) -> dict:
         """Delete a realm."""
         return self.request("DELETE", f"/admin/realms/{realm_name}")
+
+    def list_events(
+        self,
+        realm_name: str,
+        *,
+        admin: bool = False,
+        first: int = 0,
+        max_results: int = 100,
+    ) -> list:
+        """EH-410: a realm's user events (``admin=False``) or admin events.
+
+        Keycloak keeps both only when event saving is enabled for the realm; an
+        entitled caller only (same rule as :meth:`get_realm`).
+        """
+        if realm_name not in _entitled("realm", [realm_name]):
+            raise PermissionError(
+                f"Your identity is not entitled to the realm '{realm_name}'."
+            )
+        kind = "admin-events" if admin else "events"
+        params = {
+            "first": max(0, int(first)),
+            "max": max(1, min(int(max_results), 1000)),
+        }
+        events = self.request(
+            "GET", f"/admin/realms/{realm_name}/{kind}", params=params
+        )
+        return events if isinstance(events, list) else []
