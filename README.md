@@ -60,7 +60,6 @@ You can configure tool filtering via multiple input channels:
 
 When query strings or parameters are supplied, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
 
-
 ---
 
 ## Installation
@@ -70,7 +69,6 @@ Pick the extra that matches what you want to run:
 | Extra | Installs | Use when |
 |-------|----------|----------|
 | `keycloak-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
-| `keycloak-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
 | `keycloak-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -78,32 +76,27 @@ Pick the extra that matches what you want to run:
 uv pip install "keycloak-agent[mcp]"
 
 # Agent runtime (adds model orchestration to the shared graph engine)
-uv pip install "keycloak-agent[agent]"
 
 # Everything (development)
 uv pip install "keycloak-agent[all]"      # or: python -m pip install "keycloak-agent[all]"
 ```
 
-### Container images (`:mcp` vs `:agent`)
+### Container image
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+One multi-stage `docker/Dockerfile` builds a single, right-sized image:
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `example/keycloak-agent:mcp` | `--target mcp` | `keycloak-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `keycloak-mcp` |
-| `example/keycloak-agent@sha256:<digest>` | `--target agent` (default) | `keycloak-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `keycloak-agent` |
 
 ```bash
 docker build --target mcp   -t example/keycloak-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t example/keycloak-agent:agent-local docker/   # agent runtime
 ```
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` additionally enables model orchestration. Local
-deployments can use the bundled engine. For production or shared state, run
+`[mcp]` carries the **epistemic-graph** engine through the required Agent Utilities
+core dependency (`epistemic-graph[full]`). Local deployments can use the bundled engine. For production or shared state, run
 **epistemic-graph as a dedicated database service** and configure the runtime to use it.
 Deployment recipes (single-node + Raft HA), connection configuration, and architecture
 diagrams are documented in the
@@ -142,8 +135,6 @@ python -m keycloak_agent.mcp_server
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `keycloak-agent[mcp]` to add
 > FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
-> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
-> enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
@@ -316,7 +307,6 @@ the recommended reference for installation, deployment, and day-to-day operation
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
 
-
 <!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
 
 ## Deploy with `agent-utilities-deployment`
@@ -330,7 +320,7 @@ to **"deploy `keycloak-agent` with agent-utilities-deployment"**.
 | Install mode | Command |
 |------|---------|
 | Installed package | `uv tool install "keycloak-agent[mcp]"`, then run `keycloak-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `keycloak-mcp` |
+| Editable source | `uv pip install -e ".[mcp]"`, then run `keycloak-mcp` |
 | Immutable container | deploy `registry.example.invalid/keycloak-agent@sha256:<digest>` through the operator-selected orchestrator |
 
 The repository embeds no deployment profile, credential value, certificate path, or
