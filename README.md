@@ -439,6 +439,7 @@ _23 package + 23 inherited variable(s). Auto-generated from `.env.example` + the
 | `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
 | `keycloak_ingest_clients` | `INGESTTOOL` | List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``). |
 | `keycloak_ingest_groups` | `INGESTTOOL` | List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``). |
+| `keycloak_ingest_security_events` | `INGESTTOOL` | EH-410: ingest a realm's user or admin events as pseudonymized ``:AuthenticationEvent`` / ``:AdminAuditEvent`` nodes. |
 | `keycloak_ingest_realms` | `INGESTTOOL` | List all realms and ingest them into epistemic-graph as ``:Realm`` nodes. |
 | `keycloak_ingest_users` | `INGESTTOOL` | List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links). |
 

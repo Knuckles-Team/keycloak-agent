@@ -19,6 +19,7 @@ from keycloak_agent.kg_ingest import (
     ingest_clients,
     ingest_groups,
     ingest_realms,
+    ingest_security_events,
     ingest_users,
 )
 
@@ -125,3 +126,39 @@ def register_ingest_tools(mcp: FastMCP):
         groups = _as_list(lister(realm=realm))
         result = ingest_groups(groups, realm=realm)
         return {"listed": len(groups), "ingested": result}
+
+    @mcp.tool(tags={"kg", "events", "security"})
+    async def keycloak_ingest_security_events(
+        params_json: str = Field(
+            default="{}",
+            description=(
+                "JSON string with 'realm' (required), optional 'admin' (bool, admin "
+                "events instead of user events), 'first' and 'max'."
+            ),
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> dict:
+        """EH-410: ingest a realm's user or admin events as PSEUDONYMIZED
+        ``:AuthenticationEvent`` / ``:AdminAuditEvent`` nodes (identities as keyed
+        HMAC references, IPs truncated, bodies dropped)."""
+        try:
+            kwargs = json.loads(params_json) if params_json else {}
+        except ValueError:
+            return {"error": "params_json is not valid JSON"}
+        realm = kwargs.get("realm")
+        if not realm:
+            return {"error": "Missing required 'realm' in params_json."}
+        admin = bool(kwargs.get("admin", False))
+        if ctx:
+            await ctx.info(
+                f"Ingesting {'admin' if admin else 'user'} events of '{realm}'..."
+            )
+        events = client.list_events(
+            realm,
+            admin=admin,
+            first=int(kwargs.get("first", 0)),
+            max_results=int(kwargs.get("max", 100)),
+        )
+        result = ingest_security_events(events, realm=realm, admin=admin)
+        return {"listed": len(events), "ingested": result}
