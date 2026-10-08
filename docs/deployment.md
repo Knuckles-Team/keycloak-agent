@@ -81,7 +81,7 @@ The transport is selected with `--transport` (or the `TRANSPORT` env var):
     ```bash
     keycloak-mcp
     ```
-    For IDE / desktop MCP clients that launch the server as a subprocess.
+    For IDE / desktop MCP clients that start the server as a subprocess.
 
 === "streamable-http"
 
@@ -115,7 +115,7 @@ curl -s http://localhost:8000/health        # {"status":"OK"}
 
 Plus `HOST` / `PORT` / `TRANSPORT` for HTTP transports. The full set is documented
 in [`.env.example`](https://github.com/Knuckles-Team/keycloak-agent/blob/main/.env.example);
-copy it to `.env` and fill in your values. The server registers its tools and
+copy it to `.env` and fill in the operator's values. The server registers its tools and
 remains inactive on administrative writes when credentials are absent.
 
 ## Docker Compose
@@ -156,7 +156,7 @@ docker compose -f docker/compose.yml logs -f
 
 The optional **agent server** (`keycloak-agent` console script) starts a Pydantic-AI
 agent that consumes the MCP tools. Point it at a running MCP server with `--mcp-url`,
-or let it launch one from a bundled `mcp_config.json`:
+or let it start one from a bundled `mcp_config.json`:
 
 ```bash
 # Connect the agent to an already-deployed MCP HTTP server
@@ -192,7 +192,7 @@ docker compose -f docker/agent.compose.yml up -d
 
 ## Behind a Caddy reverse proxy
 
-Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:
+Expose the HTTP server on a hostname with automatic TLS. Add to the operator's `Caddyfile`:
 
 ```caddy
 # Internal (self-signed) — homelab .example.invalid zone
@@ -236,7 +236,7 @@ this as a tool.
 
 ## Register with an MCP client
 
-Add to your client's `mcp_config.json` (multiplexer nickname `key`):
+Add to the operator's client's `mcp_config.json` (multiplexer nickname `key`):
 
 ```json
 {

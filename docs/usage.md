@@ -1,7 +1,7 @@
 # Usage — API / CLI / MCP
 
 `keycloak-agent` exposes the same capability three ways: as **MCP tools** an agent
-calls, as a **Python API** (`Api`) you import, and as **console scripts**. The full
+calls, as a **Python API** (`Api`) the operator import, and as **console scripts**. The full
 tool surface and the dynamic facade are described in [Overview](overview.md).
 
 ## As an MCP server
@@ -24,7 +24,7 @@ Example agent prompts that map onto these tools:
 
 This server supports runtime toolset selection (`--tools` / `--toolsets`,
 `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TAGS`, or request headers / query parameters) so
-you can restrict the exposed surface and keep the model's context window lean.
+the operator can restrict the exposed surface and keep the model's context window lean.
 
 ## As a Python API
 
