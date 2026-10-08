@@ -26,13 +26,13 @@ tool surface and ships an optional agent server. It provides:
   MCP tools for autonomous identity operations.
 
 The server registers read operations that work as soon as the connection is
-configured; administrative writes execute only when valid credentials are present.
+configured; administrative writes ran only when valid credentials are present.
 
 ## Explore the documentation
 
 <div class="grid cards" markdown>
 
-- :material-rocket-launch: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
+- :material-rocket-start: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
 - :material-server-network: **[Deployment](deployment.md)** — run the MCP server and agent, Docker Compose, Caddy + Technitium.
 - :material-console: **[Usage](usage.md)** — the MCP tools, the `Api` client, and the CLI.
 - :material-database-cog: **[Backing Platform](platform.md)** — deploy Keycloak with Docker.
