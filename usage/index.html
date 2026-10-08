@@ -846,7 +846,7 @@
 
 <h1 id="usage-api-cli-mcp">Usage — API / CLI / MCP<a class="headerlink" href="#usage-api-cli-mcp" title="Permanent link">&para;</a></h1>
 <p><code>keycloak-agent</code> exposes the same capability three ways: as <strong>MCP tools</strong> an agent
-calls, as a <strong>Python API</strong> (<code>Api</code>) you import, and as <strong>console scripts</strong>. The full
+calls, as a <strong>Python API</strong> (<code>Api</code>) the operator import, and as <strong>console scripts</strong>. The full
 tool surface and the dynamic facade are described in <a href="../overview/">Overview</a>.</p>
 <h2 id="as-an-mcp-server">As an MCP server<a class="headerlink" href="#as-an-mcp-server" title="Permanent link">&para;</a></h2>
 <p>Once <a href="../deployment/">deployed</a>, the server registers Keycloak administration tools
@@ -882,7 +882,7 @@ administrative writes require valid admin credentials.</p>
 </ul>
 <p>This server supports runtime toolset selection (<code>--tools</code> / <code>--toolsets</code>,
 <code>MCP_ENABLED_TOOLS</code> / <code>MCP_DISABLED_TAGS</code>, or request headers / query parameters) so
-you can restrict the exposed surface and keep the model's context window lean.</p>
+the operator can restrict the exposed surface and keep the model's context window lean.</p>
 <h2 id="as-a-python-api">As a Python API<a class="headerlink" href="#as-a-python-api" title="Permanent link">&para;</a></h2>
 <p><code>Api</code> is a dynamic facade composed of the realm, user, and OIDC-client domain
 modules over the Keycloak Admin REST API.</p>
