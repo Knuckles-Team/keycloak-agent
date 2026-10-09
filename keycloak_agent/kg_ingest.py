@@ -1,41 +1,74 @@
 """Native epistemic-graph ingestion for Keycloak records.
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. Connector-specific mappers emit
-canonical node_type nodes and relationship edges. The required agent-utilities
-native-ingest primitive owns the transaction and raises NativeIngestError when the
-authoritative engine cannot commit.
+canonical node_type nodes and relationship edges through ``agent_connector_sdk.ingest``
+-- the generated ``SourceIngest`` client, not a local ingestion helper.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Entity,
+    IngestBinding,
+    IngestError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
-_SOURCE = "keycloak-agent"
-_DOMAIN = "keycloak"
+_BINDING = IngestBinding(connector="keycloak-agent", stream="keycloak")
+
+_ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
+_RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
 
 
-def ingest_entities(
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={
+            key: value
+            for key, value in record.items()
+            if key not in _ENTITY_RESERVED_KEYS
+        },
+    )
+
+
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    properties = {
+        key: value
+        for key, value in record.items()
+        if key not in _RELATIONSHIP_RESERVED_KEYS
+    }
+    return Relationship(
+        source=record["source"],
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=properties or None,
+    )
+
+
+async def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
-    """Write canonical typed nodes and relationships through agent-utilities."""
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    """Write canonical typed nodes and relationships through the SDK ingest facade."""
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(entity) for entity in entities),
+        relationships=tuple(
+            _to_relationship(relationship) for relationship in relationships or ()
+        ),
     )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 def _realm_of(record: dict[str, Any], realm: str | None) -> str | None:
@@ -43,12 +76,11 @@ def _realm_of(record: dict[str, Any], realm: str | None) -> str | None:
     return realm or record.get("realm") or record.get("realmName")
 
 
-def ingest_realms(
+async def ingest_realms(
     realms: list[dict[str, Any]],
     *,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
+    ingest: KnowledgeIngest | None = None,
+) -> dict[str, int] | None:
     """Map Keycloak realm reps → ``:Realm`` nodes and ingest."""
     entities: list[dict[str, Any]] = []
     for realm in realms or []:
@@ -65,16 +97,17 @@ def ingest_realms(
                 "externalToolId": str(name),
             }
         )
-    return ingest_entities(entities, client=client, graph=graph)
+    if not entities:
+        return None
+    return await ingest_entities(entities, ingest=ingest)
 
 
-def ingest_users(
+async def ingest_users(
     users: list[dict[str, Any]],
     *,
     realm: str | None = None,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
+    ingest: KnowledgeIngest | None = None,
+) -> dict[str, int] | None:
     """Map Keycloak user reps → ``:User`` nodes (+ ``:inRealm`` links) and ingest."""
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
@@ -111,16 +144,17 @@ def ingest_users(
                     "relationship": "inRealm",
                 }
             )
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    if not entities:
+        return None
+    return await ingest_entities(entities, relationships, ingest=ingest)
 
 
-def ingest_clients(
+async def ingest_clients(
     clients: list[dict[str, Any]],
     *,
     realm: str | None = None,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
+    ingest: KnowledgeIngest | None = None,
+) -> dict[str, int] | None:
     """Map Keycloak client reps → ``:Client`` nodes (+ ``:inRealm`` links) and ingest."""
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
@@ -157,16 +191,17 @@ def ingest_clients(
                     "relationship": "inRealm",
                 }
             )
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    if not entities:
+        return None
+    return await ingest_entities(entities, relationships, ingest=ingest)
 
 
-def ingest_groups(
+async def ingest_groups(
     groups: list[dict[str, Any]],
     *,
     realm: str | None = None,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
+    ingest: KnowledgeIngest | None = None,
+) -> dict[str, int] | None:
     """Map Keycloak group reps → ``:Group`` nodes (+ ``:inRealm`` / ``:hasSubGroup``)."""
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
@@ -213,4 +248,6 @@ def ingest_groups(
 
     for grp in groups or []:
         _walk(grp, None)
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    if not entities:
+        return None
+    return await ingest_entities(entities, relationships, ingest=ingest)
