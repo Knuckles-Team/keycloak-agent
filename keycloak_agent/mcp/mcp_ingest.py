@@ -51,7 +51,7 @@ def register_ingest_tools(mcp: FastMCP):
         if ctx:
             await ctx.info("Ingesting Keycloak realms into the knowledge graph...")
         realms = _as_list(client.list_realms())
-        result = ingest_realms(realms)
+        result = await ingest_realms(realms)
         return {"listed": len(realms), "ingested": result}
 
     @mcp.tool(tags={"kg", "users"})
@@ -74,7 +74,7 @@ def register_ingest_tools(mcp: FastMCP):
         if ctx:
             await ctx.info(f"Ingesting users from realm '{realm}'...")
         users = _as_list(client.list_users(realm=realm, search=kwargs.get("search")))
-        result = ingest_users(users, realm=realm)
+        result = await ingest_users(users, realm=realm)
         return {"listed": len(users), "ingested": result}
 
     @mcp.tool(tags={"kg", "clients"})
@@ -96,7 +96,7 @@ def register_ingest_tools(mcp: FastMCP):
         if ctx:
             await ctx.info(f"Ingesting clients from realm '{realm}'...")
         clients = _as_list(client.list_clients(realm=realm))
-        result = ingest_clients(clients, realm=realm)
+        result = await ingest_clients(clients, realm=realm)
         return {"listed": len(clients), "ingested": result}
 
     @mcp.tool(tags={"kg", "groups"})
@@ -123,5 +123,5 @@ def register_ingest_tools(mcp: FastMCP):
         if lister is None:
             return {"error": "Client has no list_groups/get_groups method."}
         groups = _as_list(lister(realm=realm))
-        result = ingest_groups(groups, realm=realm)
+        result = await ingest_groups(groups, realm=realm)
         return {"listed": len(groups), "ingested": result}

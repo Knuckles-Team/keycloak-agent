@@ -5,10 +5,8 @@ from typing import Any
 from urllib.parse import urljoin
 
 import requests
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_configured_tls_profile,
-)
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 # Direct (path, HTTP method) -> generated-method-name overrides for the main
 # realm endpoints, where the generic path-segment naming below would collide
@@ -135,9 +133,7 @@ class ApiClientBase:
         # triggers a forced re-mint + one retry — so a rotated/expired admin
         # token (Keycloak master-realm tokens are short-lived) self-heals.
         self._token_provider = token_provider
-        self.tls_profile = tls_profile or resolve_configured_tls_profile(
-            "keycloak_agent"
-        )
+        self.tls_profile = tls_profile or resolve_tls_profile("keycloak_agent")
         self._session = self.tls_profile.configure_requests_session(requests.Session())
 
         if token:
