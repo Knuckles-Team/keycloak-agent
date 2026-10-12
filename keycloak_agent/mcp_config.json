@@ -7,7 +7,6 @@
         "keycloak_agent.mcp_server"
       ],
       "env": {
-        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",

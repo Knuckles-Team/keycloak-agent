@@ -77,9 +77,7 @@ def _search_methods_result(client, all_methods: dict, kwargs: dict) -> dict:
 def _method_details_result(client, all_methods: dict, kwargs: dict) -> dict:
     method_name = kwargs.get("method_name")
     if not method_name:
-        return {
-            "error": "Missing required parameter 'method_name' in params_json."
-        }
+        return {"error": "Missing required parameter 'method_name' in params_json."}
 
     if method_name not in all_methods:
         return {"error": f"Method '{method_name}' not found."}
