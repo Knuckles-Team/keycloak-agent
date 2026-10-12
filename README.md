@@ -158,7 +158,6 @@ python -m keycloak_agent.mcp_server
         "keycloak-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",
@@ -202,7 +201,6 @@ own runtime secret boundary.
         "TRANSPORT": "streamable-http",
         "HOST": "127.0.0.1",
         "PORT": "8000",
-        "MCP_TOOL_MODE": "intent",
         "ATTACK_DETECTIONTOOL": "True",
         "AUTHENTICATIONTOOL": "True",
         "CLIENTSTOOL": "True",
@@ -245,7 +243,6 @@ docker run -i --rm \
   --pids-limit=256 \
   --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
   -e TRANSPORT=stdio \
-  -e MCP_TOOL_MODE=intent \
   -e ATTACK_DETECTIONTOOL=True \
   -e AUTHENTICATIONTOOL=True \
   -e CLIENTSTOOL=True \
@@ -267,7 +264,7 @@ direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
 CIDR policy through the operator-owned deployment profile. The generator
 does not emit an unauthenticated non-loopback listener.
 
-_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+_Auto-generated from the code-read env surface (package vars) — do not edit._
 <!-- MCP-CONFIG-EXAMPLES:END -->
 
 <!-- BEGIN GENERATED: additional-deployment-options -->
@@ -373,7 +370,6 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 | `KEYCLOAK_CLIENT_ID` | — | A service-account client whose bearer is minted from Keycloak's token endpoint and auto-refreshed. Set both to use client-credentials instead of basic auth. |
 | `KEYCLOAK_CLIENT_SECRET` | secret-injected |  |
 | `KEYCLOAK_CLIENT_AUDIENCE` | — | Token audience the minted bearer is scoped to. Defaults to KEYCLOAK_CLIENT_ID (self-audience) when unset. |
-| `MCP_TOOL_MODE` | `condensed` | MCP_TOOL_MODE selects which tools are exposed: condensed (default, action-routed tools) \| verbose (1:1 per-operation tools) \| both. |
 | `ATTACK_DETECTIONTOOL` | `True` | These names match the authoritative "Toggle Env Var" column in the README MCP tools table (condensed action-routed surface). |
 | `AUTHENTICATIONTOOL` | `True` |  |
 | `CLIENTSTOOL` | `True` |  |
@@ -386,6 +382,8 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 | `REALMSTOOL` | `True` |  |
 | `ROLESTOOL` | `True` |  |
 | `USERSTOOL` | `True` |  |
+| `KEYCLOAK_AGENT_TLS_PROFILE` | — |  |
+| `KEYCLOAK_AGENT_TLS_PROFILE_REF` | — |  |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -411,63 +409,36 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
-| `PROVIDER` | `openai` | LLM provider for the agent |
-| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `PROVIDER` | — | Operator-configured LLM provider for the agent |
+| `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_23 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 ## Available MCP Tools
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
+#### Intent tools
 
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `keycloak_agent_attack_detection` | `ATTACK_DETECTIONTOOL` | Manage Keycloak Agent brute force and attack detection operations. |
-| `keycloak_agent_authentication` | `AUTHENTICATIONTOOL` | Manage Keycloak Agent authentication and authenticator flow operations. |
-| `keycloak_agent_clients` | `CLIENTSTOOL` | Manage Keycloak Agent clients operations. |
-| `keycloak_agent_components` | `COMPONENTSTOOL` | Manage Keycloak Agent components operations. |
-| `keycloak_agent_groups` | `GROUPSTOOL` | Manage Keycloak Agent groups operations. |
-| `keycloak_agent_idps` | `IDPSTOOL` | Manage Keycloak Agent identity providers operations. |
-| `keycloak_agent_info` | `INFOTOOL` | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
-| `keycloak_agent_organizations` | `ORGANIZATIONSTOOL` | Manage Keycloak Agent organizations operations. |
-| `keycloak_agent_realms` | `REALMSTOOL` | Manage Keycloak Agent realms operations. |
-| `keycloak_agent_roles` | `ROLESTOOL` | Manage Keycloak Agent roles and scope mappings. |
-| `keycloak_agent_users` | `USERSTOOL` | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
-| `keycloak_ingest_clients` | `INGESTTOOL` | List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``). |
-| `keycloak_ingest_groups` | `INGESTTOOL` | List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``). |
-| `keycloak_ingest_realms` | `INGESTTOOL` | List all realms and ingest them into epistemic-graph as ``:Realm`` nodes. |
-| `keycloak_ingest_users` | `INGESTTOOL` | List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links). |
+| MCP Tool | Kind | Description |
+|----------|------|-------------|
+| `keycloak_agent_attack_detection` | intent | Manage Keycloak Agent brute force and attack detection operations. |
+| `keycloak_agent_authentication` | intent | Manage Keycloak Agent authentication and authenticator flow operations. |
+| `keycloak_agent_clients` | intent | Manage Keycloak Agent clients operations. |
+| `keycloak_agent_components` | intent | Manage Keycloak Agent components operations. |
+| `keycloak_agent_groups` | intent | Manage Keycloak Agent groups operations. |
+| `keycloak_agent_idps` | intent | Manage Keycloak Agent identity providers operations. |
+| `keycloak_agent_info` | intent | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
+| `keycloak_agent_organizations` | intent | Manage Keycloak Agent organizations operations. |
+| `keycloak_agent_realms` | intent | Manage Keycloak Agent realms operations. |
+| `keycloak_agent_roles` | intent | Manage Keycloak Agent roles and scope mappings. |
+| `keycloak_agent_users` | intent | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
+| `keycloak_ingest_clients` | intent | List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``). |
+| `keycloak_ingest_groups` | intent | List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``). |
+| `keycloak_ingest_realms` | intent | List all realms and ingest them into epistemic-graph as ``:Realm`` nodes. |
+| `keycloak_ingest_users` | intent | List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links). |
 
-#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
-
-<details>
-<summary>17 per-operation tools — one per public API method (click to expand)</summary>
-
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `keycloak_create_client` | `APITOOL` | Create a client. |
-| `keycloak_create_realm` | `APITOOL` | Create a new realm. |
-| `keycloak_create_user` | `APITOOL` | Create a user. |
-| `keycloak_delete_client` | `APITOOL` | Delete a client. |
-| `keycloak_delete_realm` | `APITOOL` | Delete a realm. |
-| `keycloak_delete_user` | `APITOOL` | Delete a user. |
-| `keycloak_find_client_by_client_id` | `APITOOL` | Find a client by its clientId and return it, or None if not found. |
-| `keycloak_get_client` | `APITOOL` | Get client details. |
-| `keycloak_get_client_secret` | `APITOOL` | Get the client secret for a client UUID. |
-| `keycloak_get_realm` | `APITOOL` | Get realm details. Denied if the caller is not entitled to the realm. |
-| `keycloak_get_user` | `APITOOL` | Get user details. |
-| `keycloak_list_clients` | `APITOOL` | List clients in a realm. |
-| `keycloak_list_realms` | `APITOOL` | List realms in Keycloak the caller is entitled to. |
-| `keycloak_list_users` | `APITOOL` | List users in a realm. |
-| `keycloak_regenerate_client_secret` | `APITOOL` | Regenerate (rotate) a confidential client's secret by client UUID. |
-| `keycloak_regenerate_client_secret_by_client_id` | `APITOOL` | Regenerate a client's secret by its human clientId (e.g. 'mcp-multiplexer'). |
-| `keycloak_reset_password` | `APITOOL` | Reset a user's password. |
-
-</details>
-
-_15 action-routed tool(s) · 17 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_15 intent tool(s) · 0 operation(s). Call an operation as `act(action='<operation>', params={...})` (`ask` for reads); `find(action='describe', params={'action': '<operation>'})` returns its arguments. An operation is enabled unless its `<DOMAIN>TOOL` toggle is set false. Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
