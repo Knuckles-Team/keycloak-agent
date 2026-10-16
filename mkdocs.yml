@@ -1,5 +1,5 @@
 site_name: "keycloak-agent"
-site_description: "Keycloak Identity and Access Management MCP Server + Agent for the agent-utilities ecosystem — typed tools for realms, users, and OIDC clients."
+site_description: "Keycloak Identity and Access Management MCP Server + Agent for the agent-connector-sdk ecosystem — typed tools for realms, users, and OIDC clients."
 site_url: "https://knuckles-team.github.io/keycloak-agent/"
 repo_name: "Knuckles-Team/keycloak-agent"
 repo_url: "https://github.com/Knuckles-Team/keycloak-agent"
