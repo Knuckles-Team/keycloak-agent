@@ -125,7 +125,6 @@ It reads a sibling `.env` and publishes the HTTP server on `:8000`:
 
 ```yaml
 services:
-  keycloak-agent:
     image: example/keycloak-agent@sha256:<digest>
     container_name: keycloak-agent
     hostname: keycloak-agent
@@ -160,7 +159,6 @@ or let it start one from a bundled `mcp_config.json`:
 
 ```bash
 # Connect the agent to an already-deployed MCP HTTP server
-keycloak-agent --mcp-url http://keycloak-agent:8000/mcp --host 0.0.0.0 --port 9000
 ```
 
 The agent server listens on `:9000` by default. A companion Compose file deploys it
@@ -177,7 +175,6 @@ services:
     env_file:
       - .env
     environment:
-      - MCP_URL=http://keycloak-agent:8000/mcp
       - HOST=0.0.0.0
       - PORT=9000
     ports:
@@ -187,7 +184,6 @@ services:
 ```
 
 ```bash
-docker compose -f docker/agent.compose.yml up -d
 ```
 
 ## Behind a Caddy reverse proxy
@@ -198,14 +194,12 @@ Expose the HTTP server on a hostname with automatic TLS. Add to the operator's `
 # Internal (self-signed) — homelab .example.invalid zone
 keycloak-agent.example.invalid {
     tls internal
-    reverse_proxy keycloak-agent:8000
 }
 ```
 
 ```caddy
 # Public — automatic Let's Encrypt
 keycloak-agent.example.com {
-    reverse_proxy keycloak-agent:8000
 }
 ```
 

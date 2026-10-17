@@ -22,7 +22,6 @@ The base install is intentionally minimal. Install the extra for what the operat
 | Extra | Install | Pulls in |
 |---|---|---|
 | `mcp` | `pip install "keycloak-agent[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) |
-| `agent` | `pip install "keycloak-agent[agent]"` | Pydantic-AI agent + Logfire tracing |
 | `all` | `pip install "keycloak-agent[all]"` | Everything above |
 | `test` | `pip install "keycloak-agent[test]"` | `pytest`, `pytest-asyncio`, `pytest-cov`, `pytest-xdist` |
 

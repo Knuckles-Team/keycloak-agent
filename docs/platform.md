@@ -85,7 +85,6 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD=admin_secure_password
     ports: ["8080:8080"]
 
-  keycloak-agent:
     image: example/keycloak-agent@sha256:<digest>
     depends_on: [keycloak]
     environment:
