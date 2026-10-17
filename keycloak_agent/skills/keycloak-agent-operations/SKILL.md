@@ -2,12 +2,12 @@
 name: keycloak-agent-operations
 skill_type: skill
 description: >-
-  Operate keycloak-agent through its governed MCP and GraphOS capabilities, including keycloak client onboarder. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
+  Operate keycloak-agent through its governed MCP and Arbora capabilities, including keycloak client onboarder. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
 
 # Keycloak Agent Operations
 
-Use the provider's governed MCP tools through GraphOS delegation.
+Use the provider's governed MCP tools through Arbora delegation.
 
 ## Workflow
 
