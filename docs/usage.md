@@ -52,7 +52,8 @@ Build a client straight from the environment:
 
 ```python
 from keycloak_agent.auth import get_client
-api = get_client()        # reads KEYCLOAK_* from the environment / .env
+
+api = get_client()  # reads KEYCLOAK_* from the environment / .env
 ```
 
 ### Writes
@@ -62,7 +63,9 @@ Administrative writes provision realm resources:
 ```python
 api.create_realm("apps")
 api.create_user("apps", username="alice", email="alice@example.com", enabled=True)
-api.create_client("apps", client_id="grafana", redirect_uris=["https://grafana.example.com/*"])
+api.create_client(
+    "apps", client_id="grafana", redirect_uris=["https://grafana.example.com/*"]
+)
 api.reset_password("apps", user_id, password="initial-secret", temporary=True)
 ```
 

@@ -119,5 +119,5 @@
     rdfs:label "Keycloak Identity & Access Management Ontology" ;
     rdfs:comment """Keycloak IAM model — realms, users, clients, groups, roles and
     federated identity providers, with their ownership and membership relationships —
-    federated into the agent-utilities knowledge-graph hub.""" ;
+    federated into the agent-connector-sdk knowledge-graph hub.""" ;
     owl:imports <http://knuckles.team/kg> .

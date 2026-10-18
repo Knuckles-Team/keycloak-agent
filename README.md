@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/pypi/l/keycloak-agent)](https://github.com/Knuckles-Team/keycloak-agent/blob/main/LICENSE)
 [![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/Knuckles-Team/keycloak-agent)
 
-Keycloak Identity and Access Management **MCP Server + Agent** for the agent-utilities ecosystem. Built with the standardized dynamic-facade architecture, custom API routing, and FastMCP tool registration.
+Keycloak Identity and Access Management **MCP Server + Agent** for the agent-connector-sdk ecosystem. Built with the standardized dynamic-facade architecture, custom API routing, and FastMCP tool registration.
 
 > **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
 > interfaces, and guidance for provisioning the Keycloak platform are maintained in
@@ -69,8 +69,7 @@ Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `keycloak-agent[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `keycloak-agent[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `keycloak-agent[mcp]` | Connector-focused MCP server (`agent-connector-sdk` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
 | `keycloak-agent[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -78,31 +77,24 @@ Pick the extra that matches what the operator want to run:
 uv pip install "keycloak-agent[mcp]"
 
 # Agent runtime (adds model orchestration to the shared graph engine)
-uv pip install "keycloak-agent[agent]"
 
 # Everything (development)
 uv pip install "keycloak-agent[all]"      # or: python -m pip install "keycloak-agent[all]"
 ```
 
-### Container images (`:mcp` vs `:agent`)
+### Container images (`:mcp`)
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `example/keycloak-agent:mcp` | `--target mcp` | `keycloak-agent[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `keycloak-mcp` |
-| `example/keycloak-agent@sha256:<digest>` | `--target agent` (default) | `keycloak-agent[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `keycloak-agent` |
 
 ```bash
-docker build --target mcp   -t example/keycloak-agent:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t example/keycloak-agent:agent-local docker/   # agent runtime
 ```
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` also enables model orchestration. Local
+Agent Connector SDK core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
 deployments can use the bundled engine. For production or shared state, run
 **epistemic-graph as a dedicated database service** and configure the runtime to use it.
 Deployment recipes (single-node + Raft HA), connection configuration, and architecture
@@ -119,10 +111,12 @@ The operator can start the FastMCP server in stdio mode via Python module execut
 import asyncio
 from keycloak_agent.mcp_server import get_mcp_instance
 
+
 async def main():
     mcp = get_mcp_instance()
     # Execute stdio loop or launch server
     print("MCP Server ready.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -141,7 +135,7 @@ python -m keycloak_agent.mcp_server
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `keycloak-agent[mcp]` to add
-> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> FastMCP / FastAPI through `agent-connector-sdk`; the required Agent Connector SDK core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -177,7 +171,7 @@ python -m keycloak_agent.mcp_server
 }
 ```
 
-Runtime references require an alias-aware launcher such as GraphOS. Other
+Runtime references require an alias-aware launcher such as Arbora. Other
 launchers must omit those entries and inject the resolved values through their
 own runtime secret boundary.
 
@@ -314,27 +308,6 @@ the recommended reference for installation, deployment, and day-to-day operation
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
 
 
-<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
-
-## Deploy with `agent-utilities-deployment`
-
-Provision this package with the consolidated **`agent-utilities-deployment`**
-workflow. It selects an installed-package, editable-source, or immutable-container
-path; records only runtime secret and TLS-profile references in `AgentConfig`; and
-runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `keycloak-agent` with agent-utilities-deployment"**.
-
-| Install mode | Command |
-|------|---------|
-| Installed package | `uv tool install "keycloak-agent[mcp]"`, then run `keycloak-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `keycloak-mcp` |
-| Immutable container | deploy `registry.example.invalid/keycloak-agent@sha256:<digest>` through the operator-selected orchestrator |
-
-The repository embeds no deployment profile, credential value, certificate path, or
-environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
-configured secret provider.
-
-<!-- END agent-utilities-deployment -->
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract
@@ -349,7 +322,7 @@ historical per-task skill wrappers.
 Runtime endpoints, credentials, certificate trust, tenant identity, retention,
 and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
-network transport, connector ingestion, GraphOS delegation, or trace export.
+network transport, connector ingestion, Arbora delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
 
 ## Environment Variables
@@ -385,7 +358,7 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 | `KEYCLOAK_AGENT_TLS_PROFILE` | — |  |
 | `KEYCLOAK_AGENT_TLS_PROFILE_REF` | — |  |
 
-#### Inherited agent-utilities variables (apply to every connector)
+#### Inherited agent-connector-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -413,7 +386,7 @@ network transport, connector ingestion, GraphOS delegation, or trace export.
 | `MODEL_ID` | — | Operator-configured model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 ## Available MCP Tools

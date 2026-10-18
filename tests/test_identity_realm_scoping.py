@@ -3,7 +3,7 @@
 The caller's entitled Keycloak realms auto-load in ``list_realms``; a
 non-entitled realm name is denied in ``get_realm``. Tests the
 filtering/enforcement logic with the entitlement source mocked (the resolver
-itself is tested in agent-utilities).
+itself is tested in agent-connector-sdk).
 """
 
 import pytest
@@ -52,7 +52,7 @@ def test_missing_resolver_degrades_to_full_list(monkeypatch):
     real_import = builtins.__import__
 
     def _blocked_import(name, *args, **kwargs):
-        if name == "agent_utilities.security.entitlements":
+        if name == "agent_connector_sdk.entitlements":
             raise ImportError("simulated: resolver not available")
         return real_import(name, *args, **kwargs)
 
