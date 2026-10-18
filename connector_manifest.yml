@@ -44,9 +44,23 @@ actions:
   description: 'Answers epistemic_status/why/what_changed queries over the shared knowledge graph: calibrated
     confidence, evidence/source citations, belief justification trees, bitemporal valid/tx history, and
     policy-redaction-aware provenance.'
+  label: ''
+  parameters: []
+  target_resource: null
+  conflict_policy: null
+  requires_approval: true
+  approval_class: unclassified
+  effects: []
 - id: run_graph_flow
   name: Graph Flow Execution
   description: Execute a workflow through the agent's graph orchestration engine
+  label: ''
+  parameters: []
+  target_resource: null
+  conflict_policy: null
+  requires_approval: true
+  approval_class: unclassified
+  effects: []
 events: []
 identity:
   id_field:
@@ -130,8 +144,8 @@ schema_mappings:
 sync:
 - preset: keycloak-realms
   server: keycloak-mcp
-  tool: keycloak_agent_realms
-  action: list_realms
+  tool: keycloak_list_realms
+  action: null
   records_path: ''
   id_field: realm
   title_field: displayName
@@ -139,33 +153,33 @@ sync:
   updated_field: ''
   pagination: null
   doc_type: keycloak_realm
-  tool_schema_sha256: 723894566ec98fdd0f42479f9cb2da3bd0c98d0d706311ded129d24e67ff5976
+  tool_schema_sha256: ae2b8adfa7f739092f382637596c14720ea6f44ee32022615f6966c98b4cf628
   raw:
     server: keycloak-mcp
-    tool: keycloak_agent_realms
-    action: list_realms
+    tool: keycloak_list_realms
     records_path: ''
     id_field: realm
     title_field: displayName
     text_field: realm
     updated_field: ''
     doc_type: keycloak_realm
+    params_style: args
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-08-26T13:42:55Z'
+  generated_at: '2026-10-18T00:00:00Z'
   source_artifacts:
   - keycloak_agent/connectors/mcp_source_presets.json
   - keycloak_agent/connectors/tool_schema_fingerprints.json
   - keycloak_agent/ontology/keycloak.ttl
   integrity:
     algorithm: urdna2015-sha256
-    hash: ff96e788037b12c513d7b84e451eddd5fcc520e6480d7872a8b4dea00efc4c2d
+    hash: 7802d9c76fa6ed583e927925a7ed059cf6e7491d742b51cb28649601fa7e3660
     triple_count: 61
   signer: UNSIGNED-PREVIEW
   signature_algorithm: none
   signing_public_key: ''
   signature: null
-  source_commit: bc87418d8ffa2d5b761521c5d147f21f706ac38d
+  source_commit: 024d3cc06b20c3916893e1f2f05a2c3f46d97b21
 policy:
   pii_fields:
     Client:
