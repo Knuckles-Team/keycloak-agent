@@ -1,9 +1,9 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "ff4bf8cedead3a819de06727da5f4ab8ea8e0248381bf8f16e92656bbe3f5ce2",
+    "connector_manifest.yml": "369b6a23d8ac26fd93bb86ffd371676233d57dafb41d3457a34f4911832617a7",
     "keycloak_agent/connectors/mcp_source_presets.json": "9d026409234178229af3954a9b8eb138de36b9de5900a0204ac064481da44228",
-    "keycloak_agent/connectors/tool_schema_fingerprints.json": "27f921419cc4e29ed8b179a5333a550994b5e66577d26a6071dd75241c572aab",
+    "keycloak_agent/connectors/tool_schema_fingerprints.json": "8e54885a90fa152664f09b8fd2af9553320014e41f2420d57b0fe855d5875b9b",
     "keycloak_agent/ontology/fixtures/records.json": "b805feca91bdac2f51386c2d2fb1308b1b1414752db55b414af2b2bb328e9eb8",
     "keycloak_agent/ontology/keycloak.ttl": "cfbfcc8b61a1dee336d388a5ff85ddffda3131675530831a35236fed42553199",
     "keycloak_agent/ontology/mappings/source.yaml": "cbb7f940e6a22760fac79400ff1040c022fbd25eee0e86ae31a954809459e0e4",
@@ -22,7 +22,7 @@
     "bundle_schema": "2",
     "epistemic_graph": ">=2.27.0,<3"
   },
-  "connector": "keycloak-agent",
+  "connector": "keycloak-mcp",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",

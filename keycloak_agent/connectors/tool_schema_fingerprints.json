@@ -1,6 +1,6 @@
 {
   "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "keycloak-agent",
+  "connector": "keycloak-mcp",
   "schema_version": "1",
   "tools": {
     "keycloak_list_realms": "ae2b8adfa7f739092f382637596c14720ea6f44ee32022615f6966c98b4cf628"
