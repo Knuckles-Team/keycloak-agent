@@ -19,7 +19,7 @@ from agent_connector_sdk.ingest import (
     current_ingest,
 )
 
-_BINDING = IngestBinding(connector="keycloak-agent", stream="keycloak")
+_BINDING = IngestBinding(connector="keycloak-mcp", stream="keycloak")
 
 _ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
 _RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
