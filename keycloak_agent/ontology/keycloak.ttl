@@ -29,9 +29,8 @@
     rdfs:label "Group" ;
     rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups)." .
 
-:Role a owl:Class ;
-    rdfs:label "Role" ;
-    rdfs:comment "A realm-level or client-level role granting permissions to users, groups or composite roles (keycloak_agent_roles)." .
+:Role a owl:Class .
+
 
 :IdentityProvider a owl:Class ;
     rdfs:label "Identity Provider" ;
@@ -119,5 +118,4 @@
     rdfs:label "Keycloak Identity & Access Management Ontology" ;
     rdfs:comment """Keycloak IAM model — realms, users, clients, groups, roles and
     federated identity providers, with their ownership and membership relationships —
-    federated into the agent-connector-sdk knowledge-graph hub.""" ;
-    owl:imports <http://knuckles.team/kg> .
+    federated into the agent-connector-sdk knowledge-graph hub.""" .
