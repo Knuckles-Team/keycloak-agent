@@ -54,13 +54,13 @@ def ingest():
 def _node_type(record: Any) -> str:
     """A real generated ``SourceRecord`` has no bare ``node_type`` field — it's the
     last segment of ``mapping_reference``
-    (``manifest:<connector>#schema_mappings/<NodeType>``)."""
+    (``connector:<connector>#mappings/<NodeType>``)."""
     return record.mapping_reference.rsplit("/", 1)[-1]
 
 
 def _rel_name(relationship: Any) -> str:
     """Likewise, a ``SourceRelationship``'s kind is the last segment of
-    ``relation_reference`` (``manifest:<connector>#resources/<NodeType>/relations/<kind>``)."""
+    ``relation_reference`` (``connector:<connector>#relations/<NodeType>/<kind>``)."""
     return relationship.relation_reference.rsplit("/", 1)[-1]
 
 

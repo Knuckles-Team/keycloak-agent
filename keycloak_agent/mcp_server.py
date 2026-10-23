@@ -27,7 +27,7 @@ from keycloak_agent.mcp import (
     register_users_tools,
 )
 
-__version__ = "2.3.2"
+__version__ = "2.3.3"
 logger = get_logger(name="keycloak_agent")
 
 # Re-exported so register_tool_surface(tools_module=...) auto-discovers them as
