@@ -17,8 +17,8 @@ import pytest
 from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 
 from keycloak_agent.kg_ingest import (
+    STREAM,
     ingest_clients,
-    ingest_entities,
     ingest_groups,
     ingest_realms,
     ingest_users,
@@ -66,7 +66,7 @@ def _rel_name(relationship: Any) -> str:
 
 async def test_ingest_entities_writes_nodes_and_edges(ingest):
     service, transport = ingest
-    res = await ingest_entities(
+    res = await STREAM.entities(
         [
             {"id": "a", "node_type": "User", "username": "u"},
             {"id": "b", "node_type": "Realm"},
@@ -187,7 +187,7 @@ async def test_ingest_groups_walks_subgroups(ingest):
 async def test_retired_node_type_alias_is_rejected(ingest):
     service, _transport = ingest
     with pytest.raises(IngestError):
-        await ingest_entities(
+        await STREAM.entities(
             [{"id": "retired", "type": "RetiredAlias"}], ingest=service
         )
 
@@ -195,7 +195,7 @@ async def test_retired_node_type_alias_is_rejected(ingest):
 async def test_empty_native_ingest_is_rejected(ingest):
     service, _transport = ingest
     with pytest.raises(IngestError, match="at least one entity"):
-        await ingest_entities([], ingest=service)
+        await STREAM.entities([], ingest=service)
 
 
 async def test_empty_mappers_are_a_noop(ingest):
