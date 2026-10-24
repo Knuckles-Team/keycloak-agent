@@ -7,9 +7,6 @@ Served live as ``connector://resources``. Regenerate by editing the declarations
 from __future__ import annotations
 
 from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSourceSpec
-
-CONNECTOR = "keycloak-mcp"
 
 SOURCES = (
     source_meta(
@@ -29,83 +26,44 @@ SOURCES = (
     ),
 )
 
+SCHEMA_VERSION = 2
+
+FIELD_SETS = {
+    "fields_1": {
+        "clientId": "xsd:string",
+        "email": "xsd:string",
+        "enabled": "xsd:boolean",
+        "groupPath": "xsd:string",
+        "protocol": "xsd:string",
+        "publicClient": "xsd:boolean",
+        "realmName": "xsd:string",
+        "username": "xsd:string",
+    },
+}
+
 SCHEMA_MAPPINGS = {
     "Client": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Group": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Organization",
     },
     "IdentityProvider": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Realm": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": None,
     },
     "Role": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Role",
     },
     "User": {
-        "fields": {
-            "clientId": "xsd:string",
-            "email": "xsd:string",
-            "enabled": "xsd:boolean",
-            "groupPath": "xsd:string",
-            "protocol": "xsd:string",
-            "publicClient": "xsd:boolean",
-            "realmName": "xsd:string",
-            "username": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Person",
     },
 }
@@ -142,22 +100,3 @@ RESOURCES = (
         "name": "User",
     },
 )
-
-
-def declaration() -> IngestSourceDeclaration:
-    """The declaration the server assembles from this module."""
-    specs = []
-    for item in SOURCES:
-        for entry in item["connector_sources"]:
-            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
-            specs.append(
-                IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
-            )
-    return IngestSourceDeclaration.model_validate(
-        {
-            "connector": CONNECTOR,
-            "sources": specs,
-            "schema_mappings": SCHEMA_MAPPINGS,
-            "resources": RESOURCES,
-        }
-    )
