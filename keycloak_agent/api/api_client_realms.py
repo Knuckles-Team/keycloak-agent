@@ -2,34 +2,28 @@ from keycloak_agent.api.api_client_base import ApiClientBase
 
 
 def _entitled(namespace: str, names: list[str]) -> list[str]:
-    """Filter ``names`` to the subset the calling identity's Okta/Keycloak groups
-    entitle (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload). Degrades
-    to the full list if agent-connector-sdk predates the resolver.
-    """
+    """Filter resources by the verified caller's SDK entitlements."""
     try:
         from agent_connector_sdk.entitlements import identity_scoped_resources
-    except Exception:
-        return list(names)
+    except ImportError as exc:
+        raise PermissionError("realm entitlement resolver unavailable") from exc
     return list(identity_scoped_resources(namespace, names))
 
 
 class Api(ApiClientBase):
     def list_realms(self) -> list:
         """List realms in Keycloak the caller is entitled to."""
+        _entitled("realm", [])  # Refuse an unbound caller before the provider call.
         realms = self.request("GET", "/admin/realms")
-        if isinstance(realms, list):
-            names = [
-                r["realm"] for r in realms if isinstance(r, dict) and r.get("realm")
-            ]
-            entitled = set(_entitled("realm", names))
-            realms = [
-                r
-                for r in realms
-                if not isinstance(r, dict)
-                or not r.get("realm")
-                or r["realm"] in entitled
-            ]
-        return realms
+        if not isinstance(realms, list) or any(
+            not isinstance(realm, dict)
+            or not isinstance(realm.get("realm"), str)
+            or not realm["realm"].strip()
+            for realm in realms
+        ):
+            raise ValueError("realm catalog is malformed")
+        entitled = set(_entitled("realm", [realm["realm"] for realm in realms]))
+        return [realm for realm in realms if realm["realm"] in entitled]
 
     def get_realm(self, realm_name: str) -> dict:
         """Get realm details. Denied if the caller is not entitled to the realm."""
