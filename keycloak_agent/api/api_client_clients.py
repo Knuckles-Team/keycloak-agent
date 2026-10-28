@@ -1,10 +1,25 @@
 from keycloak_agent.api.api_client_base import ApiClientBase
+from keycloak_agent.api.api_client_realms import _entitled
 
 
 class Api(ApiClientBase):
     def list_clients(self, realm: str) -> list:
-        """List clients in a realm."""
-        return self.request("GET", f"/admin/realms/{realm}/clients")
+        """List the caller's entitled client UUIDs in an entitled realm."""
+        if realm not in _entitled("realm", [realm]):
+            raise PermissionError("realm is not entitled")
+        _entitled("keycloak-client", [])
+        clients = self.request("GET", f"/admin/realms/{realm}/clients")
+        if not isinstance(clients, list) or any(
+            not isinstance(client, dict)
+            or not isinstance(client.get("id"), str)
+            or not client["id"].strip()
+            for client in clients
+        ):
+            raise ValueError("client catalog is malformed")
+        allowed = set(
+            _entitled("keycloak-client", [client["id"] for client in clients])
+        )
+        return [client for client in clients if client["id"] in allowed]
 
     def get_client(self, realm: str, client_uuid: str) -> dict:
         """Get client details."""

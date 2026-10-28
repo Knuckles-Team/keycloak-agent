@@ -2,10 +2,11 @@
   "schema_version": 2,
   "spec_id": "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY",
   "owner_repo": "keycloak-agent",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R001",
-    "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002"
+    "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002",
+    "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R003"
   ],
   "requirements": [
     {
@@ -33,6 +34,18 @@
         "tests/test_identity_realm_scoping.py:48",
         "tests/test_identity_realm_scoping.py:65",
         "tests/test_identity_realm_scoping.py:90"
+      ]
+    },
+    {
+      "id": "CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R003",
+      "title": "Client catalog auto-load is identity scoped",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_identity_client_scoping.py:36",
+        "tests/test_identity_client_scoping.py:53",
+        "tests/test_identity_client_scoping.py:69",
+        "tests/test_identity_client_scoping.py:9"
       ]
     }
   ]
