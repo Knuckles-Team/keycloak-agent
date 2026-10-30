@@ -1,7 +1,7 @@
 """Native epistemic-graph ingestion for Keycloak records.
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. Connector-specific mappers emit
-canonical node_type nodes and relationship edges through ``agent_connector_sdk.ingest``
+canonical node_type nodes and relationship edges through ``scion_sdk.ingest``
 -- the generated ``SourceIngest`` client, not a local ingestion helper.
 """
 
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     KnowledgeIngest,
     SourceStream,
 )

@@ -1,7 +1,7 @@
 """Identity-scoped client catalog auto-load."""
 
 import pytest
-from agent_connector_sdk.identity import ActorContext, ActorType, use_actor
+from scion_sdk.identity import ANONYMOUS_ACTOR, ActorContext, ActorType, use_actor
 
 from keycloak_agent.api.api_client_clients import Api
 
@@ -71,6 +71,6 @@ def test_missing_identity_never_reaches_provider(monkeypatch):
     api = object.__new__(Api)
     calls = []
     monkeypatch.setattr(api, "request", lambda *a, **k: calls.append(a))
-    with pytest.raises(PermissionError):
+    with use_actor(ANONYMOUS_ACTOR), pytest.raises(PermissionError):
         api.list_clients("prod")
     assert not calls

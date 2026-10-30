@@ -2,12 +2,12 @@
 
 import logging
 
-from agent_connector_sdk.auth.client_credentials import ClientCredentialsTokenProvider
-from agent_connector_sdk.config import setting
-from agent_connector_sdk.http.client import create_http_client
-from agent_connector_sdk.http.options import HttpClientOptions
-from agent_connector_sdk.tls.profile import ResolvedTLSProfile
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.auth.client_credentials import ClientCredentialsTokenProvider
+from scion_sdk.config import setting
+from scion_sdk.http.client import create_http_client
+from scion_sdk.http.options import HttpClientOptions
+from scion_sdk.tls.profile import ResolvedTLSProfile
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 from keycloak_agent.api_client import Api
 
