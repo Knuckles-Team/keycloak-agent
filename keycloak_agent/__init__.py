@@ -1,6 +1,6 @@
 """CONCEPT:AU-ECO.messaging.native-backend-abstraction Unified ecosystem initialization dynamic check."""
 
-from agent_connector_sdk.connector import Connector
+from scion_sdk.connector import Connector
 
 from keycloak_agent.api_client import Api
 from keycloak_agent.auth import get_client

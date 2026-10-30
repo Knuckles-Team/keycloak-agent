@@ -3,10 +3,11 @@
 The caller's entitled Keycloak realms auto-load in ``list_realms``; a
 non-entitled realm name is denied in ``get_realm``. Tests the
 filtering/enforcement logic with the entitlement source mocked (the resolver
-itself is tested in agent-connector-sdk).
+itself is tested in scion-sdk).
 """
 
 import pytest
+from scion_sdk.identity import ANONYMOUS_ACTOR, use_actor
 
 from keycloak_agent.api import api_client_realms
 from keycloak_agent.api.api_client_realms import Api
@@ -53,7 +54,7 @@ def test_missing_resolver_refuses_before_loading(monkeypatch):
     real_import = builtins.__import__
 
     def _blocked_import(name, *args, **kwargs):
-        if name == "agent_connector_sdk.entitlements":
+        if name == "scion_sdk.entitlements":
             raise ImportError("simulated: resolver not available")
         return real_import(name, *args, **kwargs)
 
@@ -64,7 +65,7 @@ def test_missing_resolver_refuses_before_loading(monkeypatch):
 
 @pytest.mark.spec("CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002")
 def test_real_authenticated_identity_scopes_the_catalog(monkeypatch):
-    from agent_connector_sdk.identity import ActorContext, ActorType, use_actor
+    from scion_sdk.identity import ActorContext, ActorType, use_actor
 
     api = object.__new__(Api)
     calls = []
@@ -89,12 +90,12 @@ def test_real_authenticated_identity_scopes_the_catalog(monkeypatch):
 
 @pytest.mark.spec("CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002")
 def test_unauthenticated_caller_never_reaches_provider(monkeypatch):
+    # An unbound library call is the SYSTEM actor; the served transport refuses
+    # anonymous callers. The anonymous actor must still see no realm.
     api = object.__new__(Api)
-    calls = []
-    monkeypatch.setattr(api, "request", lambda *a, **k: calls.append(a))
-    with pytest.raises(PermissionError):
-        api.list_realms()
-    assert not calls
+    monkeypatch.setattr(api, "request", lambda *a, **k: [{"realm": "prod"}])
+    with use_actor(ANONYMOUS_ACTOR):
+        assert api.list_realms() == []
 
 
 @pytest.mark.spec("CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002")
@@ -108,7 +109,7 @@ def test_malformed_catalog_never_returns_unscoped_data(monkeypatch, catalog):
 
 @pytest.mark.spec("CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002")
 def test_forged_or_unscoped_identity_never_reaches_provider(monkeypatch):
-    from agent_connector_sdk.identity import ActorContext, ActorType, use_actor
+    from scion_sdk.identity import ActorContext, ActorType, use_actor
 
     api = object.__new__(Api)
     calls = []

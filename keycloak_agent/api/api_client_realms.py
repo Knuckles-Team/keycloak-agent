@@ -4,7 +4,7 @@ from keycloak_agent.api.api_client_base import ApiClientBase
 def _entitled(namespace: str, names: list[str]) -> list[str]:
     """Filter resources by the verified caller's SDK entitlements."""
     try:
-        from agent_connector_sdk.entitlements import identity_scoped_resources
+        from scion_sdk.entitlements import identity_scoped_resources
     except ImportError as exc:
         raise PermissionError("realm entitlement resolver unavailable") from exc
     return list(identity_scoped_resources(namespace, names))

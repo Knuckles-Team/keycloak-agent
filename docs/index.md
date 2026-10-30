@@ -1,7 +1,7 @@
 # keycloak-agent
 
 Keycloak Identity and Access Management **MCP Server + Agent** for the
-agent-connector-sdk ecosystem — typed, deterministic tools for realms, users, and OIDC
+scion-sdk ecosystem — typed, deterministic tools for realms, users, and OIDC
 clients, plus an optional Pydantic-AI agent server.
 
 !!! info "Official documentation"

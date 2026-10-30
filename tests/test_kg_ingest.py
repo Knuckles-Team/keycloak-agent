@@ -1,4 +1,4 @@
-"""Epistemic-graph typed-node ingestion via agent_connector_sdk — Wire-First coverage.
+"""Epistemic-graph typed-node ingestion via scion_sdk — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` / ``ingest_realms`` / ``ingest_users`` /
 ``ingest_clients`` / ``ingest_groups`` seams against a fake transport one level below
@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from keycloak_agent.kg_ingest import (
     STREAM,
