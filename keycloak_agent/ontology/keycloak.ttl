@@ -9,10 +9,10 @@
 # Keycloak identity & access-management ontology — realms, users, clients, groups and
 # roles. All classes and properties live in the shared `:` (kg#) namespace; only the
 # owl:Ontology node gets the per-package IRI. Backs the keycloak-agent MCP tool surface
-# (keycloak_agent_realms / keycloak_agent_users / keycloak_agent_clients /
-# keycloak_agent_groups / keycloak_agent_roles / …).
+# (the keycloak_* and keycloak_agent_* tools).
 
 :Realm a owl:Class ;
+    rdfs:subClassOf :Organization ;
     rdfs:label "Realm" ;
     rdfs:comment "A Keycloak realm — an isolated security domain owning its own users, clients, groups and roles (keycloak_agent_realms)." .
 
@@ -22,19 +22,20 @@
     rdfs:subClassOf :Person .
 
 :Client a owl:Class ;
+    rdfs:subClassOf :Application ;
     rdfs:label "Client" ;
     rdfs:comment "An application or service registered in a realm that requests authentication (OIDC/SAML), e.g. a confidential or public client (keycloak_agent_clients)." .
 
 :Group a owl:Class ;
+    rdfs:subClassOf :IdentityGroup ;
     rdfs:label "Group" ;
-    rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups)." .
-
-:Role a owl:Class .
+    rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups_* tools)." .
 
 
 :IdentityProvider a owl:Class ;
+    rdfs:subClassOf :Application ;
     rdfs:label "Identity Provider" ;
-    rdfs:comment "An external IdP federated into a realm for brokered login (keycloak_agent_idps)." .
+    rdfs:comment "An external IdP federated into a realm for brokered login (keycloak_agent_idps_* tools)." .
 
 # --- links (owl:ObjectProperty) ---
 

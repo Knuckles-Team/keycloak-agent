@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.11] - 2026-11-06
+
+### Changed
+- Connector surface: agent-definition prompts (operator, SSO integrator, identity administrator, realm administrator), task skills, tool-use contracts for all 52 tools, data locations and roles; ontology classes extend core classes.
+- Require `scion-sdk>=0.9.0`; `uv.lock` relocked.
+- The untyped `params_json` action tools are replaced by one typed tool per operation (`keycloak_agent_<area>_<operation>`); destructive tools take `confirm`.
+
 ## [2.3.9] - 2026-10-30
 
 ### Changed

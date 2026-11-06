@@ -1,50 +1,103 @@
-"""MCP tools for authentication management operations."""
+"""Typed MCP tools for Keycloak authentication operations (one tool per operation)."""
+
+from typing import Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from keycloak_agent.auth import get_client
+from keycloak_agent.mcp._guard import CONFIRMATION_REQUIRED, drop_none
 
 
 def register_authentication_tools(mcp: FastMCP):
-    """Register Keycloak Agent authentication tools."""
+    """Register Keycloak authentication tools."""
 
-    @mcp.tool(tags=["authentication"])
-    async def keycloak_agent_authentication(
-        action: str = Field(
-            description="Action to perform. e.g. 'list_authentication_flows', 'get_authentication_flows_by_id', 'create_authentication_flows', 'delete_authentication_flows_by_id', 'list_authentication_authenticator_providers', etc."
+    @mcp.tool(
+        tags={"authentication"},
+        annotations={"readOnlyHint": False, "destructiveHint": False},
+    )
+    async def keycloak_agent_authentication_create_authentication_flows(
+        representation: dict[str, Any] = Field(
+            description="The JSON representation to send as the request body."
         ),
-        params_json: str = Field(
-            default="{}", description="JSON string of parameters."
+        realm: str = Field(default="master", description="Realm name."),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> Any:
+        """Create a new authentication flow
+
+        Calls POST /admin/realms/{realm}/authentication/flows.
+        """
+        return client.create_authentication_flows(
+            **drop_none(representation=representation, realm=realm)
+        )
+
+    @mcp.tool(
+        tags={"authentication"},
+        annotations={"readOnlyHint": False, "destructiveHint": True},
+    )
+    async def keycloak_agent_authentication_delete_authentication_flows_by_id(
+        id: str = Field(description="The id in the path."),
+        realm: str = Field(default="master", description="Realm name."),
+        confirm: bool = Field(
+            default=False, description="Must be true; set only after the person agrees."
         ),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
-    ) -> dict:
-        """Manage Keycloak Agent authentication and authenticator flow operations."""
-        if ctx:
-            await ctx.info(f"Executing authentication operation: {action}...")
-        import json
+    ) -> Any:
+        """Delete an authentication flow
 
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
+        Calls DELETE /admin/realms/{realm}/authentication/flows/{id}.
+        """
+        if not confirm:
+            return CONFIRMATION_REQUIRED
+        return client.delete_authentication_flows_by_id(**drop_none(id=id, realm=realm))
 
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    @mcp.tool(
+        tags={"authentication"},
+        annotations={"readOnlyHint": True, "idempotentHint": True},
+    )
+    async def keycloak_agent_authentication_get_authentication_flows_by_id(
+        id: str = Field(description="The id in the path."),
+        realm: str = Field(default="master", description="Realm name."),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> Any:
+        """Get authentication flow for id
 
-        # Dynamic dispatch
-        method = getattr(client, action, None)
-        if not method:
-            alt_action = action.replace("-", "_").replace(" ", "_").lower()
-            method = getattr(client, alt_action, None)
+        Calls GET /admin/realms/{realm}/authentication/flows/{id}.
+        """
+        return client.get_authentication_flows_by_id(**drop_none(id=id, realm=realm))
 
-        if not method:
-            return {"error": f"Unknown action '{action}' on Authentication client."}
+    @mcp.tool(
+        tags={"authentication"},
+        annotations={"readOnlyHint": True, "idempotentHint": True},
+    )
+    async def keycloak_agent_authentication_list_authentication_authenticator_providers(
+        realm: str = Field(default="master", description="Realm name."),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> Any:
+        """Get authenticator providers Returns a stream of authenticator providers.
 
-        try:
-            return method(**kwargs)
-        except Exception as e:
-            return {
-                "error": f"Failed to execute authentication operation {action}: {type(e).__name__}"
-            }
+        Calls GET /admin/realms/{realm}/authentication/authenticator-providers.
+        """
+        return client.list_authentication_authenticator_providers(
+            **drop_none(realm=realm)
+        )
+
+    @mcp.tool(
+        tags={"authentication"},
+        annotations={"readOnlyHint": True, "idempotentHint": True},
+    )
+    async def keycloak_agent_authentication_list_authentication_flows(
+        realm: str = Field(default="master", description="Realm name."),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> Any:
+        """Get authentication flows Returns a stream of authentication flows.
+
+        Calls GET /admin/realms/{realm}/authentication/flows.
+        """
+        return client.list_authentication_flows(**drop_none(realm=realm))

@@ -8,8 +8,6 @@ Native-ingest failures propagate to the caller.
 
 from __future__ import annotations
 
-import json
-
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -56,43 +54,27 @@ def register_ingest_tools(mcp: FastMCP):
 
     @mcp.tool(tags={"kg", "users"})
     async def keycloak_ingest_users(
-        params_json: str = Field(
-            default="{}",
-            description="JSON string with 'realm' (required) and optional 'search'.",
+        realm: str = Field(description="Realm to ingest from."),
+        search: str | None = Field(
+            default=None, description="Only users matching this text."
         ),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
         """List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links)."""
-        try:
-            kwargs = json.loads(params_json) if params_json else {}
-        except Exception:  # noqa: BLE001
-            return {"error": "Operation failed"}
-        realm = kwargs.get("realm")
-        if not realm:
-            return {"error": "Missing required 'realm' in params_json."}
         if ctx:
             await ctx.info(f"Ingesting users from realm '{realm}'...")
-        users = _as_list(client.list_users(realm=realm, search=kwargs.get("search")))
+        users = _as_list(client.list_users(realm=realm, search=search))
         result = await ingest_users(users, realm=realm)
         return {"listed": len(users), "ingested": result}
 
     @mcp.tool(tags={"kg", "clients"})
     async def keycloak_ingest_clients(
-        params_json: str = Field(
-            default="{}", description="JSON string with 'realm' (required)."
-        ),
+        realm: str = Field(description="Realm to ingest from."),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
         """List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``)."""
-        try:
-            kwargs = json.loads(params_json) if params_json else {}
-        except Exception:  # noqa: BLE001
-            return {"error": "Operation failed"}
-        realm = kwargs.get("realm")
-        if not realm:
-            return {"error": "Missing required 'realm' in params_json."}
         if ctx:
             await ctx.info(f"Ingesting clients from realm '{realm}'...")
         clients = _as_list(client.list_clients(realm=realm))
@@ -101,20 +83,11 @@ def register_ingest_tools(mcp: FastMCP):
 
     @mcp.tool(tags={"kg", "groups"})
     async def keycloak_ingest_groups(
-        params_json: str = Field(
-            default="{}", description="JSON string with 'realm' (required)."
-        ),
+        realm: str = Field(description="Realm to ingest from."),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
         """List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``)."""
-        try:
-            kwargs = json.loads(params_json) if params_json else {}
-        except Exception:  # noqa: BLE001
-            return {"error": "Operation failed"}
-        realm = kwargs.get("realm")
-        if not realm:
-            return {"error": "Missing required 'realm' in params_json."}
         if ctx:
             await ctx.info(f"Ingesting groups from realm '{realm}'...")
         lister = getattr(client, "list_groups", None) or getattr(

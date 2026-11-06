@@ -94,39 +94,43 @@ def _method_details_result(client, all_methods: dict, kwargs: dict) -> dict:
     }
 
 
-_INFO_ACTIONS = {
-    "list_methods": _list_methods_result,
-    "search_methods": _search_methods_result,
-    "method_details": _method_details_result,
-}
-
-
 def register_info_tools(mcp: FastMCP):
-    """Register Keycloak Agent info tools."""
+    """Register the Keycloak API discovery tools."""
 
-    @mcp.tool(tags=["info"])
-    async def keycloak_agent_info(
-        action: str = Field(
-            default="list_methods",
-            description="Info action to perform. Must be one of: 'list_methods', 'search_methods', 'method_details'",
-        ),
-        params_json: str = Field(
-            default="{}", description="JSON string of parameters."
+    @mcp.tool(tags=["info"], annotations={"readOnlyHint": True, "idempotentHint": True})
+    async def keycloak_agent_info_list_methods(
+        tag: str | None = Field(
+            default=None,
+            description="Only methods of this API tag, for example Groups.",
         ),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """Inspect and discover available Keycloak API methods, paths, and signatures at runtime."""
-        import json
+        """List the Keycloak Admin API methods the client can call, optionally by tag."""
+        return _list_methods_result(client, _collect_all_methods(client), {"tag": tag})
 
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
+    @mcp.tool(tags=["info"], annotations={"readOnlyHint": True, "idempotentHint": True})
+    async def keycloak_agent_info_search_methods(
+        query: str = Field(
+            description="Text to look for in method names, paths, tags and summaries."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> dict:
+        """Search the Keycloak Admin API methods by name, path, tag or summary."""
+        return _search_methods_result(
+            client, _collect_all_methods(client), {"query": query}
+        )
 
-        all_methods = _collect_all_methods(client)
-
-        handler = _INFO_ACTIONS.get(action)
-        if handler is None:
-            raise ValueError(f"Unknown action: {action}")
-        return handler(client, all_methods, kwargs)
+    @mcp.tool(tags=["info"], annotations={"readOnlyHint": True, "idempotentHint": True})
+    async def keycloak_agent_info_method_details(
+        method_name: str = Field(
+            description="Name of a client method from list_methods."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(default=None, description="MCP context"),
+    ) -> dict:
+        """Read the HTTP method, path template, tag and docstring of one client method."""
+        return _method_details_result(
+            client, _collect_all_methods(client), {"method_name": method_name}
+        )

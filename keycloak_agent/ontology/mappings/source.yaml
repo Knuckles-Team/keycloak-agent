@@ -4,8 +4,7 @@ ontology_source: keycloak
 sync:
 - preset: keycloak-realms
   server: keycloak-mcp
-  tool: keycloak_agent_realms
-  action: list_realms
+  tool: keycloak_list_realms
   records_path: ''
   id_field: realm
   title_field: displayName

@@ -1,50 +1,36 @@
-"""MCP tools for attack detection operations."""
+"""Typed MCP tools for Keycloak attack detection operations (one tool per operation)."""
+
+from typing import Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from keycloak_agent.auth import get_client
+from keycloak_agent.mcp._guard import CONFIRMATION_REQUIRED, drop_none
 
 
 def register_attack_detection_tools(mcp: FastMCP):
-    """Register Keycloak Agent attack detection tools."""
+    """Register Keycloak attack detection tools."""
 
-    @mcp.tool(tags=["attack_detection"])
-    async def keycloak_agent_attack_detection(
-        action: str = Field(
-            description="Action to perform. e.g. 'get_attack_detection_brute_force_users_by_userId', 'delete_attack_detection_brute_force_users', 'delete_attack_detection_brute_force_users_by_userId', etc."
-        ),
-        params_json: str = Field(
-            default="{}", description="JSON string of parameters."
+    @mcp.tool(
+        tags={"attack_detection"},
+        annotations={"readOnlyHint": False, "destructiveHint": True},
+    )
+    async def keycloak_agent_attack_detection_delete_attack_detection_brute_force_users(
+        realm: str = Field(default="master", description="Realm name."),
+        confirm: bool = Field(
+            default=False, description="Must be true; set only after the person agrees."
         ),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
-    ) -> dict:
-        """Manage Keycloak Agent brute force and attack detection operations."""
-        if ctx:
-            await ctx.info(f"Executing attack detection operation: {action}...")
-        import json
+    ) -> Any:
+        """Clear any user login failures for all users This can release temporary disabled users
 
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        # Dynamic dispatch
-        method = getattr(client, action, None)
-        if not method:
-            alt_action = action.replace("-", "_").replace(" ", "_").lower()
-            method = getattr(client, alt_action, None)
-
-        if not method:
-            return {"error": f"Unknown action '{action}' on Attack Detection client."}
-
-        try:
-            return method(**kwargs)
-        except Exception as e:
-            return {
-                "error": f"Failed to execute attack detection operation {action}: {type(e).__name__}"
-            }
+        Calls DELETE /admin/realms/{realm}/attack-detection/brute-force/users.
+        """
+        if not confirm:
+            return CONFIRMATION_REQUIRED
+        return client.delete_attack_detection_brute_force_users(
+            **drop_none(realm=realm)
+        )

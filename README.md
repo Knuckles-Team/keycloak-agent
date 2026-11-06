@@ -393,25 +393,17 @@ _24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Intent tools
+#### Typed tools (one per operation)
 
-| MCP Tool | Kind | Description |
-|----------|------|-------------|
-| `keycloak_agent_attack_detection` | intent | Manage Keycloak Agent brute force and attack detection operations. |
-| `keycloak_agent_authentication` | intent | Manage Keycloak Agent authentication and authenticator flow operations. |
-| `keycloak_agent_clients` | intent | Manage Keycloak Agent clients operations. |
-| `keycloak_agent_components` | intent | Manage Keycloak Agent components operations. |
-| `keycloak_agent_groups` | intent | Manage Keycloak Agent groups operations. |
-| `keycloak_agent_idps` | intent | Manage Keycloak Agent identity providers operations. |
-| `keycloak_agent_info` | intent | Inspect and discover available Keycloak API methods, paths, and signatures at runtime. |
-| `keycloak_agent_organizations` | intent | Manage Keycloak Agent organizations operations. |
-| `keycloak_agent_realms` | intent | Manage Keycloak Agent realms operations. |
-| `keycloak_agent_roles` | intent | Manage Keycloak Agent roles and scope mappings. |
-| `keycloak_agent_users` | intent | Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings). |
-| `keycloak_ingest_clients` | intent | List clients in a realm and ingest them as ``:Client`` nodes (+ ``:inRealm``). |
-| `keycloak_ingest_groups` | intent | List groups in a realm and ingest them as ``:Group`` nodes (+ ``:hasSubGroup``). |
-| `keycloak_ingest_realms` | intent | List all realms and ingest them into epistemic-graph as ``:Realm`` nodes. |
-| `keycloak_ingest_users` | intent | List users in a realm and ingest them as ``:User`` nodes (+ ``:inRealm`` links). |
+| MCP Tool family | Description |
+|-----------------|-------------|
+| `keycloak_list_realms`, `keycloak_get_realm`, `keycloak_create_realm`, `keycloak_delete_realm` | Realms. |
+| `keycloak_list_users`, `keycloak_get_user`, `keycloak_create_user`, `keycloak_reset_password`, `keycloak_delete_user` | Users. |
+| `keycloak_list_clients`, `keycloak_get_client`, `keycloak_find_client_by_client_id`, `keycloak_create_client`, `keycloak_get_client_secret`, `keycloak_regenerate_client_secret`, `keycloak_regenerate_client_secret_by_client_id`, `keycloak_delete_client` | OIDC clients. |
+| `keycloak_agent_groups_*`, `keycloak_agent_roles_*`, `keycloak_agent_organizations_*` | Groups, roles and organizations. |
+| `keycloak_agent_idps_*`, `keycloak_agent_authentication_*`, `keycloak_agent_components_*`, `keycloak_agent_attack_detection_*` | Identity providers, authentication flows, components, brute-force protection. |
+| `keycloak_agent_info_list_methods`, `_search_methods`, `_method_details` | Admin API catalog. |
+| `keycloak_ingest_realms`, `_users`, `_clients`, `_groups` | Mirror records into the knowledge graph. |
 
-_15 intent tool(s) · 0 operation(s). Call an operation as `act(action='<operation>', params={...})` (`ask` for reads); `find(action='describe', params={'action': '<operation>'})` returns its arguments. An operation is enabled unless its `<DOMAIN>TOOL` toggle is set false. Auto-generated — do not edit._
+Destructive tools take `confirm=true`.
 <!-- MCP-TOOLS-TABLE:END -->
