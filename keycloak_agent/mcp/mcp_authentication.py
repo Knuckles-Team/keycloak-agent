@@ -13,7 +13,7 @@ def register_authentication_tools(mcp: FastMCP):
     @mcp.tool(tags=["authentication"])
     async def keycloak_agent_authentication(
         action: str = Field(
-            description="Action to perform. e.g. 'list_authentication_flows', 'get_authentication_flow', 'create_authentication_flow', 'delete_authentication_flow', 'list_authenticator_providers', etc."
+            description="Action to perform. e.g. 'list_authentication_flows', 'get_authentication_flows_by_id', 'create_authentication_flows', 'delete_authentication_flows_by_id', 'list_authentication_authenticator_providers', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."

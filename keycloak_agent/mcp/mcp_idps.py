@@ -13,7 +13,7 @@ def register_idps_tools(mcp: FastMCP):
     @mcp.tool(tags=["idps"])
     async def keycloak_agent_idps(
         action: str = Field(
-            description="Action to perform. e.g. 'list_identity_providers', 'get_identity_provider', 'create_identity_provider', 'delete_identity_provider', etc."
+            description="Action to perform. e.g. 'list_identity_provider_instances', 'get_identity_provider_instances_by_alias', 'create_identity_provider_instances', 'delete_identity_provider_instances_by_alias', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."

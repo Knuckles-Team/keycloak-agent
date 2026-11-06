@@ -13,7 +13,7 @@ def register_roles_tools(mcp: FastMCP):
     @mcp.tool(tags=["roles"])
     async def keycloak_agent_roles(
         action: str = Field(
-            description="Action to perform. e.g. 'list_roles', 'get_role', 'create_role', 'delete_role', 'get_role_by_id', etc."
+            description="Action to perform. e.g. 'list_roles', 'get_roles_by_role_name', 'create_roles', 'delete_roles_by_role_name', 'get_roles_by_id_by_role_id', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
