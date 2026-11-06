@@ -13,7 +13,7 @@ def register_groups_tools(mcp: FastMCP):
     @mcp.tool(tags=["groups"])
     async def keycloak_agent_groups(
         action: str = Field(
-            description="Action to perform. e.g. 'list_groups', 'get_group', 'create_group', 'delete_group', etc."
+            description="Action to perform. e.g. 'list_groups', 'get_groups_by_group_id', 'create_groups', 'delete_groups_by_group_id', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."

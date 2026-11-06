@@ -13,7 +13,7 @@ def register_components_tools(mcp: FastMCP):
     @mcp.tool(tags=["components"])
     async def keycloak_agent_components(
         action: str = Field(
-            description="Action to perform. e.g. 'list_components', 'get_component', 'create_component', 'delete_component', etc."
+            description="Action to perform. e.g. 'list_components', 'get_components_by_id', 'create_components', 'delete_components_by_id', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."

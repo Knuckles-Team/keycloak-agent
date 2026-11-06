@@ -13,7 +13,7 @@ def register_organizations_tools(mcp: FastMCP):
     @mcp.tool(tags=["organizations"])
     async def keycloak_agent_organizations(
         action: str = Field(
-            description="Action to perform. e.g. 'list_organizations', 'get_organization_by_id', 'create_organization', 'delete_organization_by_id', etc."
+            description="Action to perform. e.g. 'list_organizations', 'get_organizations_by_org_id', 'create_organizations', 'delete_organizations_by_org_id', etc."
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters."
