@@ -1,48 +1,44 @@
-"""MCP tools for users operations."""
+"""Typed MCP tools for Keycloak users operations (one tool per operation)."""
+
+from typing import Any
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
 
 from keycloak_agent.auth import get_client
+from keycloak_agent.mcp._guard import drop_none
 
 
 def register_users_tools(mcp: FastMCP):
-    """Register Keycloak Agent users tools."""
+    """Register Keycloak users tools."""
 
-    @mcp.tool(tags=["users"])
-    async def keycloak_agent_users(
-        action: str = Field(
-            description="Action to perform. e.g. 'list_users', 'get_user', 'create_user', 'delete_user', 'reset_password', 'list_users_by_user_id_groups', etc."
+    @mcp.tool(
+        tags={"users"}, annotations={"readOnlyHint": True, "idempotentHint": True}
+    )
+    async def keycloak_agent_users_list_users_by_user_id_groups(
+        user_id: str = Field(description="The user id in the path."),
+        realm: str = Field(default="master", description="Realm name."),
+        briefRepresentation: bool | None = Field(
+            default=None, description="Query filter: briefRepresentation."
         ),
-        params_json: str = Field(
-            default="{}", description="JSON string of parameters."
-        ),
+        first: int | None = Field(default=None, description="Query filter: first."),
+        max: int | None = Field(default=None, description="Query filter: max."),
+        search: str | None = Field(default=None, description="Query filter: search."),
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
-    ) -> dict:
-        """Manage Keycloak Agent users operations (Users, Role Mappings, Client Role Mappings)."""
-        if ctx:
-            await ctx.info(f"Executing users operation: {action}...")
-        import json
+    ) -> Any:
+        """List users by user id groups
 
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        # Dynamic dispatch
-        method = getattr(client, action, None)
-        if not method:
-            alt_action = action.replace("-", "_").replace(" ", "_").lower()
-            method = getattr(client, alt_action, None)
-
-        if not method:
-            return {"error": f"Unknown action '{action}' on Users client."}
-
-        try:
-            return method(**kwargs)
-        except Exception:
-            return {"error": "Operation failed"}
+        Calls GET /admin/realms/{realm}/users/{user-id}/groups.
+        """
+        return client.list_users_by_user_id_groups(
+            **drop_none(
+                user_id=user_id,
+                realm=realm,
+                briefRepresentation=briefRepresentation,
+                first=first,
+                max=max,
+                search=search,
+            )
+        )
