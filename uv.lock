@@ -852,7 +852,7 @@ wheels = [
 
 [[package]]
 name = "keycloak-agent"
-version = "2.3.8"
+version = "2.3.10"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
