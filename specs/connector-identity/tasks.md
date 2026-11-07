@@ -7,3 +7,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [x] T001 [US1] CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R001 Fleet name.
 - [x] T002 [US1] CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002 Realm catalog requires a verified identity.
 - [x] T003 [US1] CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R003 Client catalog auto-load is identity scoped.
+- [ ] T004 [US1] CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R004 Adopt scion-sdk 0.10.0 import paths. Size: S, 1 PR, 30 minutes.

@@ -7,3 +7,9 @@ Governing spec: [spec.md](spec.md).
 | T-001 | `CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R001` | `tests/test_fleet_name.py::test_connector_name_is_the_fleet_name` | Every connector name in the package is `keycloak-mcp`. |
 | T-002 | `CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R002` | `tests/test_identity_realm_scoping.py` | Only entitled realms are returned; missing authority and malformed catalogs refuse. |
 | T-003 | `CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R003` | `tests/test_identity_client_scoping.py` | The catalog returns only actor-granted client UUIDs in an entitled realm. |
+
+## Adoption of scion-sdk 0.10.0 (`CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R004`)
+
+| Requirement | Test | Observation |
+|---|---|---|
+| `CONN-KEYCLOAK-AGENT-CONNECTOR-IDENTITY-R004` | `tests/test_scion_sdk_0_10_imports.py::test_every_scion_sdk_import_resolves_on_the_pinned_release` | Every `scion_sdk` import resolves on the pinned release; a removed path fails the test. |
