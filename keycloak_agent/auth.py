@@ -4,7 +4,7 @@ import logging
 
 from scion_sdk.auth.client_credentials import ClientCredentialsTokenProvider
 from scion_sdk.config import setting
-from scion_sdk.http.client import create_http_client
+from scion_sdk.http.client import build_http_client
 from scion_sdk.http.options import HttpClientOptions
 from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
@@ -43,7 +43,7 @@ def get_client(tls_profile: ResolvedTLSProfile | None = None) -> Api:
             client_id=client_id,
             client_secret=client_secret,
             audience=audience,
-            http_client=create_http_client(
+            http_client=build_http_client(
                 HttpClientOptions(base_url=base_url, tls=profile)
             ),
         )

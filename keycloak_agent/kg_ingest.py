@@ -1,4 +1,4 @@
-"""Native epistemic-graph ingestion for Keycloak records.
+"""Native medulla ingestion for Keycloak records.
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. Connector-specific mappers emit
 canonical node_type nodes and relationship edges through ``scion_sdk.ingest``
