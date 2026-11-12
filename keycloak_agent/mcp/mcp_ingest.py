@@ -1,4 +1,4 @@
-"""Wire-First MCP tools that natively ingest Keycloak records into epistemic-graph.
+"""Wire-First MCP tools that natively ingest Keycloak records into medulla.
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. Each tool lists real records via the
 Keycloak Admin client and pushes them into the knowledge graph as typed OWL nodes
@@ -45,7 +45,7 @@ def register_ingest_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = Field(default=None, description="MCP context"),
     ) -> dict:
-        """List all realms and ingest them into epistemic-graph as ``:Realm`` nodes."""
+        """List all realms and ingest them into medulla as ``:Realm`` nodes."""
         if ctx:
             await ctx.info("Ingesting Keycloak realms into the knowledge graph...")
         realms = _as_list(client.list_realms())
