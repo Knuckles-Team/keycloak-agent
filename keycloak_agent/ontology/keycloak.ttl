@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/keycloak#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -12,28 +13,28 @@
 # (the keycloak_* and keycloak_agent_* tools).
 
 :Realm a owl:Class ;
-    rdfs:subClassOf :Organization ;
+    rdfs:subClassOf core:Organization ;
     rdfs:label "Realm" ;
     rdfs:comment "A Keycloak realm — an isolated security domain owning its own users, clients, groups and roles (keycloak_agent_realms)." .
 
 :User a owl:Class ;
     rdfs:label "Keycloak User" ;
     rdfs:comment "A user account within a realm; a realm-scoped identity that authenticates and holds roles/group memberships (keycloak_agent_users). A subclass-of-usage of the shared :Person identity." ;
-    rdfs:subClassOf :Person .
+    rdfs:subClassOf core:Person .
 
 :Client a owl:Class ;
-    rdfs:subClassOf :Application ;
+    rdfs:subClassOf core:Application ;
     rdfs:label "Client" ;
     rdfs:comment "An application or service registered in a realm that requests authentication (OIDC/SAML), e.g. a confidential or public client (keycloak_agent_clients)." .
 
 :Group a owl:Class ;
-    rdfs:subClassOf :IdentityGroup ;
+    rdfs:subClassOf core:IdentityGroup ;
     rdfs:label "Group" ;
     rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups_* tools)." .
 
 
 :IdentityProvider a owl:Class ;
-    rdfs:subClassOf :Application ;
+    rdfs:subClassOf core:Application ;
     rdfs:label "Identity Provider" ;
     rdfs:comment "An external IdP federated into a realm for brokered login (keycloak_agent_idps_* tools)." .
 
@@ -59,7 +60,7 @@
 :hasRole a owl:ObjectProperty ;
     rdfs:label "has role" ;
     rdfs:comment "Links a User or Group to a Role assigned to it." ;
-    rdfs:range :Role .
+    rdfs:range core:Role .
 
 :federatesIdentityProvider a owl:ObjectProperty ;
     rdfs:label "federates identity provider" ;
@@ -115,7 +116,7 @@
     rdfs:domain :Group ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/keycloak> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/keycloak> a owl:Ontology ;
     rdfs:label "Keycloak Identity & Access Management Ontology" ;
     rdfs:comment """Keycloak IAM model — realms, users, clients, groups, roles and
     federated identity providers, with their ownership and membership relationships —
