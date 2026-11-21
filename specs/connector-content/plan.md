@@ -53,6 +53,7 @@ The repository pre-commit hooks apply: `ruff-format`, `connector-standard`, `sec
 ## Production caller chain
 
 1. `CONN-KEYCLOAK-AGENT-CONNECTOR-CONTENT-R001`: the `keycloak-mcp` console script (pyproject.toml) loads the `scion_sdk.connector` entry point `keycloak_agent:connector` -> keycloak_agent/__init__.py::connector (a Connector with no content= argument) -> the SDK default content registration serves skill://, ontology:// and prompts.
+2. `CONN-KEYCLOAK-AGENT-CONNECTOR-CONTENT-R003`: the ontology loader reads `keycloak_agent/ontology/` at server start; the engine imports the served pack and finds no redeclared core term.
 
 ## Cross-repo seams
 

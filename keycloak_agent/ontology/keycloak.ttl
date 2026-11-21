@@ -32,7 +32,6 @@
     rdfs:label "Group" ;
     rdfs:comment "A hierarchical collection of users used to grant roles and attributes in bulk (keycloak_agent_groups_* tools)." .
 
-
 :IdentityProvider a owl:Class ;
     rdfs:subClassOf core:Application ;
     rdfs:label "Identity Provider" ;
@@ -45,22 +44,11 @@
     rdfs:comment "Links a User, Client, Group, Role or IdentityProvider to the Realm that owns it." ;
     rdfs:range :Realm .
 
-:memberOfGroup a owl:ObjectProperty ;
-    rdfs:label "member of group" ;
-    rdfs:comment "Links a User to a Group it belongs to." ;
-    rdfs:domain :User ;
-    rdfs:range :Group .
-
 :hasSubGroup a owl:ObjectProperty ;
     rdfs:label "has subgroup" ;
     rdfs:comment "Links a Group to a nested child Group." ;
     rdfs:domain :Group ;
     rdfs:range :Group .
-
-:hasRole a owl:ObjectProperty ;
-    rdfs:label "has role" ;
-    rdfs:comment "Links a User or Group to a Role assigned to it." ;
-    rdfs:range core:Role .
 
 :federatesIdentityProvider a owl:ObjectProperty ;
     rdfs:label "federates identity provider" ;
@@ -78,12 +66,6 @@
 :username a owl:DatatypeProperty ;
     rdfs:label "username" ;
     rdfs:comment "Login username of a Keycloak User." ;
-    rdfs:domain :User ;
-    rdfs:range xsd:string .
-
-:email a owl:DatatypeProperty ;
-    rdfs:label "email" ;
-    rdfs:comment "Email address of a User." ;
     rdfs:domain :User ;
     rdfs:range xsd:string .
 
