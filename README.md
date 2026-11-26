@@ -1,38 +1,40 @@
 # Keycloak Agent
-## MCP Server | Agent
+## MCP | Agent
 
-[![PyPI - Version](https://img.shields.io/pypi/v/keycloak-agent)](https://pypi.org/project/keycloak-agent/)
+![PyPI - Version](https://img.shields.io/pypi/v/keycloak-agent)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
-[![License](https://img.shields.io/pypi/l/keycloak-agent)](https://github.com/Knuckles-Team/keycloak-agent/blob/main/LICENSE)
-[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/Knuckles-Team/keycloak-agent)
+![PyPI - Downloads](https://img.shields.io/pypi/dd/keycloak-agent)
+![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/keycloak-agent)
+![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/keycloak-agent)
+![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/keycloak-agent)
+![PyPI - License](https://img.shields.io/pypi/l/keycloak-agent)
+![GitHub](https://img.shields.io/github/license/Knuckles-Team/keycloak-agent)
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/keycloak-agent)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/keycloak-agent)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/keycloak-agent)
+![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/keycloak-agent)
+![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/keycloak-agent)
+![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/keycloak-agent)
+![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/keycloak-agent)
+![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/keycloak-agent)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/keycloak-agent)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/keycloak-agent)
 
-Keycloak Identity and Access Management **MCP Server + Agent** for the scion-sdk ecosystem. Built with the standardized dynamic-facade architecture, custom API routing, and FastMCP tool registration.
-
-> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
-> interfaces, and guidance for provisioning the Keycloak platform are maintained in
-> the [official documentation](https://knuckles-team.github.io/keycloak-agent/).
-
-## Table of Contents
-- [Overview](#overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [MCP Tools](#mcp-tools)
-- [Architecture](#architecture)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+> **Documentation** — Installation, deployment, and usage across the API, CLI, MCP,
+> and A2A agent interfaces are maintained in the
+> [official documentation](https://knuckles-team.github.io/keycloak-agent/).
 
 ---
 
 ## Overview
 
+Keycloak Identity and Access Management **MCP Server + Agent** for the scion-sdk ecosystem. Built with the standardized dynamic-facade architecture, custom API routing, and FastMCP tool registration.
+
 Keycloak MCP provides a high-performance, model-optimized interface to Keycloak capabilities. It isolates the model from underlying API transport complexity, ensuring safe, idempotent, and highly traceable system interactions.
 
 ---
 
-## Features
+## Key Features
 
 - **Dynamic Facade Orchestration**: Integrates multi-inheritance clients cleanly under a single facade.
 - **Battle-Tested Resilience**: Out-of-the-box credential authentication, connection polling, and request retry strategies.
@@ -41,7 +43,9 @@ Keycloak MCP provides a high-performance, model-optimized interface to Keycloak 
 
 ---
 
-## ⚙️ Dynamic Tool Selection & Visibility
+## MCP
+
+### Dynamic Tool Selection & Visibility
 
 This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows the operator to restrict the set of exposed tools to prevent blowing up the LLM's context window.
 
@@ -60,6 +64,90 @@ The operator can configure tool filtering via multiple input channels:
 
 When query strings or parameters are provided, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
 
+### Available MCP Tools
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+#### Typed tools (one per operation)
+
+| MCP Tool family | Description |
+|-----------------|-------------|
+| `keycloak_list_realms`, `keycloak_get_realm`, `keycloak_create_realm`, `keycloak_delete_realm` | Realms. |
+| `keycloak_list_users`, `keycloak_get_user`, `keycloak_create_user`, `keycloak_reset_password`, `keycloak_delete_user` | Users. |
+| `keycloak_list_clients`, `keycloak_get_client`, `keycloak_find_client_by_client_id`, `keycloak_create_client`, `keycloak_get_client_secret`, `keycloak_regenerate_client_secret`, `keycloak_regenerate_client_secret_by_client_id`, `keycloak_delete_client` | OIDC clients. |
+| `keycloak_agent_groups_*`, `keycloak_agent_roles_*`, `keycloak_agent_organizations_*` | Groups, roles and organizations. |
+| `keycloak_agent_idps_*`, `keycloak_agent_authentication_*`, `keycloak_agent_components_*`, `keycloak_agent_attack_detection_*` | Identity providers, authentication flows, components, brute-force protection. |
+| `keycloak_agent_info_list_methods`, `_search_methods`, `_method_details` | Admin API catalog. |
+| `keycloak_ingest_realms`, `_users`, `_clients`, `_groups` | Mirror records into the knowledge graph. |
+
+Destructive tools take `confirm=true`.
+<!-- MCP-TOOLS-TABLE:END -->
+
+---
+
+## Environment Variables
+
+<!-- ENV-VARS-TABLE:START -->
+
+#### Package environment variables
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `KEYCLOAK_URL` | — | Keycloak base Admin URL (required) |
+| `KEYCLOAK_REALM` | `master` | Keycloak realm name |
+| `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
+| `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
+| `KEYCLOAK_AGENT_USERNAME` | — | Admin account username |
+| `KEYCLOAK_AGENT_PASSWORD` | secret-injected | Admin account password |
+| `KEYCLOAK_TOKEN` | secret-injected | Static bearer token |
+| `KEYCLOAK_CLIENT_ID` | — | A service-account client whose bearer is minted from Keycloak's token endpoint and auto-refreshed. Set both to use client-credentials instead of basic auth. |
+| `KEYCLOAK_CLIENT_SECRET` | secret-injected |  |
+| `KEYCLOAK_CLIENT_AUDIENCE` | — | Token audience the minted bearer is scoped to. Defaults to KEYCLOAK_CLIENT_ID (self-audience) when unset. |
+| `ATTACK_DETECTIONTOOL` | `True` | These names match the authoritative "Toggle Env Var" column in the README MCP tools table (condensed action-routed surface). |
+| `AUTHENTICATIONTOOL` | `True` |  |
+| `CLIENTSTOOL` | `True` |  |
+| `COMPONENTSTOOL` | `True` |  |
+| `GROUPSTOOL` | `True` |  |
+| `IDPSTOOL` | `True` |  |
+| `INFOTOOL` | `True` |  |
+| `INGESTTOOL` | `True` |  |
+| `ORGANIZATIONSTOOL` | `True` |  |
+| `REALMSTOOL` | `True` |  |
+| `ROLESTOOL` | `True` |  |
+| `USERSTOOL` | `True` |  |
+| `KEYCLOAK_AGENT_TLS_PROFILE` | — |  |
+| `KEYCLOAK_AGENT_TLS_PROFILE_REF` | — |  |
+
+#### Inherited scion-sdk variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `TRANSPORT` | `stdio` | MCP transport: `stdio` \| `streamable-http` \| `sse` |
+| `HOST` | `127.0.0.1` | Loopback bind host (set an authenticated ingress explicitly) |
+| `PORT` | `8000` | Bind port (HTTP transports) |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` \| `embedded` \| `remote` |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
+| `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
+| `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` \| `basic` \| `none` |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET_REF` | `secret://identity/oidc-client-secret` | Runtime secret reference for the OIDC service account |
+| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
+| `MCP_BASIC_AUTH_PASSWORD_REF` | `secret://identity/mcp-basic-password` | Runtime secret reference for HTTP Basic auth (`MCP_CLIENT_AUTH=basic`) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | — | Operator-configured LLM provider for the agent |
+| `MODEL_ID` | — | Operator-configured model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
 
 ---
 
@@ -276,14 +364,6 @@ the detailed transport contract.
   `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
-## Contributing
-
-Please audit all code changes against the repository's contribution and review requirements, and run:
-
-```bash
-pre-commit run --all-files
-```
-
 ---
 
 ## Documentation
@@ -303,11 +383,30 @@ the recommended reference for installation, deployment, and day-to-day operation
 
 `AGENTS.md` is the canonical contributor/agent guidance.
 
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
 
+---
 
+## Repository Owners
+
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
+
+---
+
+## Contribute
+
+Please audit all code changes against the repository's contribution and review requirements, and run:
+
+```bash
+pre-commit run --all-files
+```
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract
@@ -324,86 +423,3 @@ and observability policy are deployment inputs and are never packaged values.
 See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
 network transport, connector ingestion, Arbora delegation, or trace export.
 <!-- GOVERNED-CAPABILITY:END -->
-
-## Environment Variables
-
-<!-- ENV-VARS-TABLE:START -->
-
-#### Package environment variables
-
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `KEYCLOAK_URL` | — | Keycloak base Admin URL (required) |
-| `KEYCLOAK_REALM` | `master` | Keycloak realm name |
-| `TLS_PROFILE` | `private-pki` | TLS verification is mandatory. Select a named runtime profile from AgentConfig. |
-| `TLS_PROFILES_REF` | `secret://runtime/tls-profiles` |  |
-| `KEYCLOAK_AGENT_USERNAME` | — | Admin account username |
-| `KEYCLOAK_AGENT_PASSWORD` | secret-injected | Admin account password |
-| `KEYCLOAK_TOKEN` | secret-injected | Static bearer token |
-| `KEYCLOAK_CLIENT_ID` | — | A service-account client whose bearer is minted from Keycloak's token endpoint and auto-refreshed. Set both to use client-credentials instead of basic auth. |
-| `KEYCLOAK_CLIENT_SECRET` | secret-injected |  |
-| `KEYCLOAK_CLIENT_AUDIENCE` | — | Token audience the minted bearer is scoped to. Defaults to KEYCLOAK_CLIENT_ID (self-audience) when unset. |
-| `ATTACK_DETECTIONTOOL` | `True` | These names match the authoritative "Toggle Env Var" column in the README MCP tools table (condensed action-routed surface). |
-| `AUTHENTICATIONTOOL` | `True` |  |
-| `CLIENTSTOOL` | `True` |  |
-| `COMPONENTSTOOL` | `True` |  |
-| `GROUPSTOOL` | `True` |  |
-| `IDPSTOOL` | `True` |  |
-| `INFOTOOL` | `True` |  |
-| `INGESTTOOL` | `True` |  |
-| `ORGANIZATIONSTOOL` | `True` |  |
-| `REALMSTOOL` | `True` |  |
-| `ROLESTOOL` | `True` |  |
-| `USERSTOOL` | `True` |  |
-| `KEYCLOAK_AGENT_TLS_PROFILE` | — |  |
-| `KEYCLOAK_AGENT_TLS_PROFILE_REF` | — |  |
-
-#### Inherited scion-sdk variables (apply to every connector)
-
-| Variable | Example | Description |
-|----------|---------|-------------|
-| `TRANSPORT` | `stdio` | MCP transport: `stdio` \| `streamable-http` \| `sse` |
-| `HOST` | `127.0.0.1` | Loopback bind host (set an authenticated ingress explicitly) |
-| `PORT` | `8000` | Bind port (HTTP transports) |
-| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
-| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
-| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
-| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
-| `EUNOMIA_TYPE` | `none` | Authorization mode: `none` \| `embedded` \| `remote` |
-| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` | Embedded Eunomia policy file |
-| `EUNOMIA_REMOTE_URL` | — | Remote Eunomia authorization server URL |
-| `ENABLE_OTEL` | `False` | Enable OpenTelemetry export |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OTLP collector endpoint |
-| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` \| `basic` \| `none` |
-| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
-| `OIDC_CLIENT_SECRET_REF` | `secret://identity/oidc-client-secret` | Runtime secret reference for the OIDC service account |
-| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
-| `MCP_BASIC_AUTH_PASSWORD_REF` | `secret://identity/mcp-basic-password` | Runtime secret reference for HTTP Basic auth (`MCP_CLIENT_AUTH=basic`) |
-| `DEBUG` | `False` | Verbose logging |
-| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
-| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
-| `PROVIDER` | — | Operator-configured LLM provider for the agent |
-| `MODEL_ID` | — | Operator-configured model id for the agent |
-| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
-
-_24 package + 23 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
-<!-- ENV-VARS-TABLE:END -->
-
-## Available MCP Tools
-
-<!-- MCP-TOOLS-TABLE:START -->
-
-#### Typed tools (one per operation)
-
-| MCP Tool family | Description |
-|-----------------|-------------|
-| `keycloak_list_realms`, `keycloak_get_realm`, `keycloak_create_realm`, `keycloak_delete_realm` | Realms. |
-| `keycloak_list_users`, `keycloak_get_user`, `keycloak_create_user`, `keycloak_reset_password`, `keycloak_delete_user` | Users. |
-| `keycloak_list_clients`, `keycloak_get_client`, `keycloak_find_client_by_client_id`, `keycloak_create_client`, `keycloak_get_client_secret`, `keycloak_regenerate_client_secret`, `keycloak_regenerate_client_secret_by_client_id`, `keycloak_delete_client` | OIDC clients. |
-| `keycloak_agent_groups_*`, `keycloak_agent_roles_*`, `keycloak_agent_organizations_*` | Groups, roles and organizations. |
-| `keycloak_agent_idps_*`, `keycloak_agent_authentication_*`, `keycloak_agent_components_*`, `keycloak_agent_attack_detection_*` | Identity providers, authentication flows, components, brute-force protection. |
-| `keycloak_agent_info_list_methods`, `_search_methods`, `_method_details` | Admin API catalog. |
-| `keycloak_ingest_realms`, `_users`, `_clients`, `_groups` | Mirror records into the knowledge graph. |
-
-Destructive tools take `confirm=true`.
-<!-- MCP-TOOLS-TABLE:END -->
